@@ -14,11 +14,15 @@ const responseCodes = {
   ERROR_PROCESSING: "ERROR_PROCESSING",
   DATA_PROCESSING_ERROR: "DATA_PROCESSING_ERROR",
   LOGIN_FIRST: "LOGIN_FIRST",
+  LOGIN_SUCCESS: "LOGIN_SUCCESS",
+  LOGIN_FAILED: "LOGIN_FAILED",
 };
 
 const responseMessage = {
   EMAIL_ALREADY_TAKEN:
     "The email address or phone number provided is already in use.",
+  INVALID_EMAIL: "The provided email address is incorrect!!",
+  INVALID_PASSWORD: "The provided password is incorrect!!",
 };
 
 module.exports = { responseCodes, responseMessage };

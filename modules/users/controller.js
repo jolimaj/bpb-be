@@ -8,16 +8,18 @@ const { UserMapper } = require("../../common/mappers/user-mapper");
 const {
   NotificationService,
 } = require("../../common/service/notification-service");
-
+const { SecurePassword } = require("../../helpers/password/secure-password");
 class UsersController {
   #model;
   #mapper;
   #notifService;
+  #securePassword;
 
   constructor() {
     this.#model = User;
     this.#mapper = new UserMapper();
     this.#notifService = new NotificationService();
+    this.#securePassword = new SecurePassword();
   }
   async getAll(option) {
     try {
@@ -40,6 +42,7 @@ class UsersController {
       retur;
     }
   }
+
   async registrationUser(payload) {
     try {
       const request = this.#mapper.createUser(payload);
@@ -59,6 +62,30 @@ class UsersController {
         NOTIF_TYPE.UPON_CREATION
       );
       return result;
+    } catch (error) {
+      return error;
+    }
+  }
+  async loginUser(payload) {
+    try {
+      const emailData = await this.#model.findOne({
+        where: { email: payload.email },
+        raw: true,
+      });
+
+      if (!emailData) {
+        return Promise.reject(responseMessage.INVALID_EMAIL);
+      }
+
+      const passwordData = this.#securePassword.decryptPassword(
+        payload?.password,
+        emailData.password
+      );
+
+      if (!passwordData) {
+        return Promise.reject(responseMessage.INVALID_PASSWORD);
+      }
+      return emailData;
     } catch (error) {
       return error;
     }

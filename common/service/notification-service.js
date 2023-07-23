@@ -15,8 +15,8 @@ class NotificationService {
       port: TRANSPORTER.PORT,
       secure: false, // true for 465, false for other ports
       auth: {
-        user: TRANSPORTER.USER, //email ID
-        pass: TRANSPORTER.PASS, //Password
+        user: process.env.EMAIL_USER, //email ID
+        pass: process.env.EMAIL_PASSWORD, //Password
       },
     });
   }

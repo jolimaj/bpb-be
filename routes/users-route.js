@@ -21,4 +21,13 @@ router.post("/users", async (req, res) => {
     return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
   }
 });
+
+router.put("/users/:id", async (req, res) => {
+  try {
+    const data = await usersController.userActivate(req.params.id);
+    return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+  } catch (e) {
+    return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
+  }
+});
 module.exports = router;

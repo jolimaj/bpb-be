@@ -13,7 +13,7 @@ class EmailHelper {
         To proceed with the password reset, please click on the following link to access the password reset page: [Password Reset Link]`;
         break;
       case NOTIF_TYPE.UPON_CREATION:
-        text = `We are thrilled to welcome you to ${process.env.APP_NAME}! Thank you for creating an account with us. This marks the beginning of an exciting journey together, and we can't wait to show you all that our platform has to offer.`;
+        text = `We are thrilled to welcome you to ${process.env.APP_NAME}! Thank you for creating an account with us. This marks the beginning of an exciting journey together, and we can't wait to show you all that our platform has to offer. To proceed with the password reset, please click on the following link to activate your account: [Password Reset Link]`;
         break;
     }
 

@@ -26,6 +26,20 @@ class UsersController {
       retur;
     }
   }
+  async userActivate(id) {
+    try {
+      return await this.#model.update(
+        { isActive: true },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+    } catch (error) {
+      retur;
+    }
+  }
   async registrationUser(payload) {
     try {
       const request = this.#mapper.createUser(payload);

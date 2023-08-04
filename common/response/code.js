@@ -23,6 +23,7 @@ const responseMessage = {
     "The email address or phone number provided is already in use.",
   INVALID_EMAIL: "The provided email address is incorrect!!",
   INVALID_PASSWORD: "The provided password is incorrect!!",
+  LOGIN_FIRST: "Cannot access this page! Please sign in first.",
 };
 
 module.exports = { responseCodes, responseMessage };

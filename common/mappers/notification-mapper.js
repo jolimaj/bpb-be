@@ -15,6 +15,14 @@ class NotificationMapper {
       text: this.#emailHelper.message(type),
     };
   }
+
+  smsMapper(payload) {
+    return {
+      from: payload?.from,
+      to: payload?.mobile,
+      text: payload?.message,
+    };
+  }
 }
 
 module.exports = { NotificationMapper };

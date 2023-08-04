@@ -21,11 +21,11 @@ class UsersController {
     this.#notifService = new NotificationService();
     this.#securePassword = new SecurePassword();
   }
-  async getAll(option) {
+  async getAll(options) {
     try {
-      return await this.#model.findAll();
+      return await this.#model.findAll({ where: { options }, limit: 10 });
     } catch (error) {
-      retur;
+      return error;
     }
   }
   async userActivate(id) {
@@ -43,6 +43,20 @@ class UsersController {
     }
   }
 
+  async uploadImage(id) {
+    try {
+      return await this.#model.update(
+        { isActive: true },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+    } catch (error) {
+      retur;
+    }
+  }
   async registrationUser(payload) {
     try {
       const request = this.#mapper.createUser(payload);

@@ -7,9 +7,13 @@ const usersController = new UsersController();
 
 router.post("/sign-in", mw.validateLogin, async (req, res) => {
   try {
-    const data = await usersController.loginUser(req.body);
+    const { body, session } = req;
+    const data = await usersController.loginUser(body);
+    session.email = body.email;
+    session.password = body.password;
     return res.success(200, responseCodes.LOGIN_SUCCESS, data);
   } catch (e) {
+    console.log("🚀 ~ file: login-route.js:16 ~ router.post ~ e:", e);
     return res.error(400, responseCodes.LOGIN_FAILED, e);
   }
 });

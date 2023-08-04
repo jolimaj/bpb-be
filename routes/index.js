@@ -1,8 +1,8 @@
 const router = require("express").Router({ mergeParams: true });
-const Users = require("./users-route");
 const Login = require("./login-route");
+const Admin = require("./admin-route");
 
-router.use("/users", Users);
+router.use("/admin", Admin);
 router.use("/", Login);
 
 module.exports = router;

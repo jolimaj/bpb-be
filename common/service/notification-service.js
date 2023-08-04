@@ -1,4 +1,6 @@
 const nodemailer = require("nodemailer");
+const { Vonage } = require("@vonage/server-sdk");
+
 const { TRANSPORTER } = require("../constant/notification-constant");
 
 const { NotificationMapper } = require("../mappers/notification-mapper");
@@ -7,6 +9,9 @@ class NotificationService {
   #notificationMapper;
 
   #transporter;
+
+  #vonage;
+
   constructor() {
     this.#notificationMapper = new NotificationMapper();
     this.#transporter = nodemailer.createTransport({
@@ -19,11 +24,31 @@ class NotificationService {
         pass: process.env.EMAIL_PASSWORD, //Password
       },
     });
+    this.#vonage = new Vonage({
+      apiKey: "accdcf4d",
+      apiSecret: "ruO3egZtETjJneZF",
+    });
   }
 
   sendEmailNotification(payload, type) {
     const requestBody = this.#notificationMapper.emailMapper(payload, type);
     return this.#transporter.sendMail(requestBody);
+  }
+
+  async sendSMSNotification(payload) {
+    try {
+      const requestBody = this.#notificationMapper.smsMapper(payload);
+      console.log(
+        "🚀 ~ file: notification-service.js:41 ~ NotificationService ~ sendSMSNotification ~ requestBody:",
+        requestBody
+      );
+      return await this.#vonage.sms.send(requestBody);
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: notification-service.js:43 ~ NotificationService ~ sendSMSNotification ~ error:",
+        error
+      );
+    }
   }
 }
 

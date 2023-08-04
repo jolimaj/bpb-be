@@ -7,8 +7,9 @@ module.exports.validateRegister = {
     fName: Joi.string().pattern(REGULAR_EXPRESSION.NAME).required(),
     mName: Joi.string().pattern(REGULAR_EXPRESSION.NAME).optional(),
     lName: Joi.string().pattern(REGULAR_EXPRESSION.NAME).required(),
-    mobile: Joi.string().pattern(REGULAR_EXPRESSION.MOBILE).required(),
+    phone: Joi.string().pattern(REGULAR_EXPRESSION.MOBILE).required(),
     email: Joi.string().email().trim(true).required(),
+    isActive: Joi.boolean().optional(),
     password: Joi.string()
       .min(8)
       .pattern(REGULAR_EXPRESSION.PASSWORD)
@@ -20,10 +21,7 @@ module.exports.validateRegister = {
 module.exports.validateLogin = {
   schema: Joi.object({
     email: Joi.string().email().trim(true).required(),
-    password: Joi.string()
-      .min(8)
-      .pattern(REGULAR_EXPRESSION.PASSWORD)
-      .required(),
+    password: Joi.string().min(8).required(),
   }),
   location: "body",
 };

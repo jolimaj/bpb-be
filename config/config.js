@@ -16,6 +16,7 @@ module.exports = {
       max: 10,
     },
   },
+  staging: `postgres://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}/${process.env.DB_NAME}`,
   test: {
     username: process.env.DB_USER,
     password: process.env.DB_PASS,

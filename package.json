@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node server.js",
     "build": "npm install",
-    "start": "npm run build && node server.js && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
+    "start": "npm run build  && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && node server.js",
     "db:generate": "npx sequelize-cli model:generate",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo:all",

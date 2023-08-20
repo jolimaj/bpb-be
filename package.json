@@ -1,5 +1,5 @@
 {
-  "name": "backend-boiler-plate",
+  "name": "Business Permit ng Bayan (BPB)",
   "version": "1.0.0",
   "description": "About\r Description\r This a boiler plate for nodejs, express and postgres sql backend development.",
   "main": "index.js",

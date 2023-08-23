@@ -1,9 +1,10 @@
 const Joi = require("joi");
 const { REGULAR_EXPRESSION } = require("../../common/constant/regexer");
 
-module.exports.validateRegister = {
+module.exports.validateStaff = {
   schema: Joi.object({
     roleID: Joi.number().required(),
+    departmentID: Joi.number().required(),
     fName: Joi.string()
       .label("First Name")
       .pattern(REGULAR_EXPRESSION.NAME)
@@ -21,7 +22,12 @@ module.exports.validateRegister = {
       .label("Mobile Number")
       .required(),
     email: Joi.string().email().trim(true).label("Email Address").required(),
-    isActive: Joi.boolean().optional(),
+  }),
+  location: "body",
+};
+
+module.exports.validatePassword = {
+  schema: Joi.object({
     password: Joi.string()
       .label("Password")
       .min(8)
@@ -32,10 +38,9 @@ module.exports.validateRegister = {
   location: "body",
 };
 
-module.exports.validateLogin = {
+module.exports.validateStaffID = {
   schema: Joi.object({
-    email: Joi.string().email().trim(true).required(),
-    password: Joi.string().min(8).required(),
+    id: Joi.number().required(),
   }),
-  location: "body",
+  location: "params",
 };

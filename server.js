@@ -9,6 +9,19 @@ const { okResp, errResp } = require("./helpers/response/response-helper");
 
 const app = express();
 app.use(bodyParser.json());
+
+const oneDay = 1000 * 60 * 60 * 24;
+
+//session middleware
+app.use(
+  sessions({
+    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
+    saveUninitialized: true,
+    cookie: { maxAge: oneDay },
+    resave: false,
+  })
+);
+
 app.use(cookieParser());
 
 app.use(cors());
@@ -33,16 +46,6 @@ app.use("/", require("./routes"));
 app.use("*", (req, res) => {
   res.status(404).send("Not Found.");
 });
-
-const oneDay = 1000 * 60 * 60 * 24;
-app.use(
-  sessions({
-    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
-    saveUninitialized: true,
-    cookie: { maxAge: oneDay },
-    resave: false,
-  })
-);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {

@@ -1,25 +1,29 @@
 const router = require("express").Router({ mergeParams: true });
-const Multer = require("multer");
 
 const { responseCodes, responseMessage } = require("../common/response/code");
 const mw = require("../validation/middleware");
 
 const { UsersController } = require("../modules/users/controller");
+const { DepartmentsModule } = require("../modules/departments/controller");
 const {
   NotificationService,
 } = require("../common/service/notification-service");
 
-const storage = new Multer.memoryStorage();
-const upload = Multer({
-  storage,
-});
-
 const usersController = new UsersController();
+const departmentsController = new DepartmentsModule();
 
-router.post("/users", mw.validateRegister, async (req, res) => {
+router.post("/approvers", mw.validateStaff, async (req, res) => {
   try {
-    const data = await usersController.registrationUser(req.body);
-    return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
+    if (req.session?.email && req.session?.password) {
+      const data = await usersController.addStaff(req.body);
+      return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
+    }
+
+    return res.error(
+      400,
+      responseCodes.LOGIN_FIRST,
+      responseMessage.LOGIN_FIRST
+    );
   } catch (e) {
     return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
   }
@@ -58,5 +62,17 @@ router.post(
     // }
   }
 );
+
+router.get("/departments", async (req, res) => {
+  const { query, session } = req;
+
+  const data = await departmentsController.getDepartments(query);
+
+  if (session?.email && session?.password) {
+    return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
+  }
+
+  return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
+});
 
 module.exports = router;

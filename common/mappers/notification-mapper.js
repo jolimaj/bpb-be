@@ -9,10 +9,10 @@ class NotificationMapper {
 
   emailMapper(payload, type) {
     return {
-      from: "'Email from @myboilerplate.com <donotreplymyboilerplate@gmail.com>'",
+      from: "'Email from @businesspermitngbayan.vercel.app <donotreplybpbbusinesspermitngbayan@gmail.com>'",
       to: payload?.email,
       subject: this.#emailHelper.subject(type),
-      text: this.#emailHelper.message(type),
+      text: this.#emailHelper.message(payload?.id, type),
     };
   }
 

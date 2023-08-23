@@ -17,6 +17,7 @@ module.exports = {
       },
       status: {
         type: Sequelize.INTEGER,
+        defaultValue: 0, //0 processing //1 done
       },
       type: {
         type: Sequelize.INTEGER,
@@ -26,6 +27,45 @@ module.exports = {
       },
       applicantPosition: {
         type: Sequelize.STRING,
+      },
+      approvedByMPDC: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      approvedByMTO1: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      approvedByMTO2: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      approvedBySANIDAD: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      approvedByMEO: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      approvedByMENRO: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      approvedByBFP: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      approvedByBPLO1: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      approvedByBPLO2: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      assignedToDepartmentID: {
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         allowNull: false,

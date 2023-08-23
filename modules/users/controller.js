@@ -9,21 +9,43 @@ const {
   NotificationService,
 } = require("../../common/service/notification-service");
 const { SecurePassword } = require("../../helpers/password/secure-password");
+
+const { DepartmentsModule } = require("../departments/controller");
 class UsersController {
   #model;
   #mapper;
   #notifService;
   #securePassword;
+  #departmentModule;
 
   constructor() {
     this.#model = User;
     this.#mapper = new UserMapper();
     this.#notifService = new NotificationService();
     this.#securePassword = new SecurePassword();
+    this.#departmentModule = new DepartmentsModule();
   }
-  async getAll(options) {
+  async getUserByID(email) {
     try {
-      return await this.#model.findAll({ where: { options }, limit: 10 });
+      return await this.#model.findOne({ where: { email }, raw: true });
+    } catch (error) {
+      return error;
+    }
+  }
+  async getAll(query) {
+    try {
+      const queries =
+        Object.keys(query).length > 0
+          ? {
+              where: {
+                firstName: query?.firstName,
+              },
+              limit: 10,
+            }
+          : {
+              limit: 10,
+            };
+      return await this.#model.findAll(queries);
     } catch (error) {
       return error;
     }
@@ -42,7 +64,20 @@ class UsersController {
       retur;
     }
   }
+  async addPassword(id, password) {
+    try {
+      const request = this.#mapper.createStaffPassword({ password });
 
+      return await this.#model.update(request, {
+        where: {
+          id,
+        },
+        raw: true,
+      });
+    } catch (error) {
+      retur;
+    }
+  }
   async uploadImage(id) {
     try {
       return await this.#model.update(
@@ -57,12 +92,34 @@ class UsersController {
       retur;
     }
   }
+  async addStaff(payload) {
+    try {
+      const request = this.#mapper.createStaff(payload);
+      const [result, created] = await this.#model.findOrCreate({
+        where: {
+          [Op.or]: [{ email: payload.email }, { mobile: payload.mobile }],
+        },
+        defaults: request,
+        raw: true,
+      });
+
+      if (!created) {
+        return Promise.reject(responseMessage.EMAIL_ALREADY_TAKEN);
+      }
+
+      await this.#departmentModule.updateDepartments(result?.dataValues);
+      this.#notifService.sendEmailNotification(result, NOTIF_TYPE.NEW_STAFF);
+      return result;
+    } catch (error) {
+      return error;
+    }
+  }
   async registrationUser(payload) {
     try {
       const request = this.#mapper.createUser(payload);
       const [result, created] = await this.#model.findOrCreate({
         where: {
-          [Op.or]: [{ email: payload.email }, { mobile: payload.phone }],
+          [Op.or]: [{ email: payload.email }, { mobile: payload.mobile }],
         },
         defaults: request,
       });
@@ -72,7 +129,7 @@ class UsersController {
       }
 
       this.#notifService.sendEmailNotification(
-        request,
+        result,
         NOTIF_TYPE.UPON_CREATION
       );
       return result;

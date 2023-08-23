@@ -3,6 +3,15 @@ const {
   validateLogin,
   validateUserID,
 } = require("./users/users-validation");
+const {
+  validateStaff,
+  validatePassword,
+  validateStaffID,
+} = require("./admin/staff-validation");
+const {
+  validatePermit,
+  validateSignature,
+} = require("./users/business-permit");
 
 function schemaValidate(template, req, res, next) {
   try {
@@ -29,6 +38,16 @@ const validate = {
     schemaValidate(validateLogin, req, res, next),
   validateUserID: (req, res, next) =>
     schemaValidate(validateUserID, req, res, next),
+  validateStaff: (req, res, next) =>
+    schemaValidate(validateStaff, req, res, next),
+  validatePassword: (req, res, next) =>
+    schemaValidate(validatePassword, req, res, next),
+  validateStaffID: (req, res, next) =>
+    schemaValidate(validateStaffID, req, res, next),
+  validatePermit: (req, res, next) =>
+    schemaValidate(validatePermit, req, res, next),
+  validateSignature: (req, res, next) =>
+    schemaValidate(validateSignature, req, res, next),
 };
 
 module.exports = validate;

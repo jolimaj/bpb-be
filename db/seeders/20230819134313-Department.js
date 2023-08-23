@@ -30,6 +30,10 @@ module.exports = {
           name: "Municipal Health Office (Sanitation)",
           code: "SANIDAD",
         },
+        {
+          name: "Bureu of Fire Protection",
+          code: "BFP",
+        },
       ],
       {}
     );

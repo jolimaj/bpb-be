@@ -19,10 +19,11 @@ module.exports = {
         type: Sequelize.STRING,
       },
       locationalClearance: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING, //zoning
       },
       leaseContract: {
         type: Sequelize.STRING,
+        allowNull: true,
       }, //optional
       picture: {
         type: Sequelize.STRING,
@@ -32,12 +33,15 @@ module.exports = {
       },
       nationalAgencyAccredetation: {
         type: Sequelize.STRING,
+        allowNull: true,
       }, //optional
       marketClearance: {
         type: Sequelize.STRING,
+        allowNull: true,
       }, //optional
       homeOwnersClearance: {
         type: Sequelize.STRING,
+        allowNull: true,
       }, //optional
       cedula: {
         type: Sequelize.STRING,
@@ -53,9 +57,6 @@ module.exports = {
       },
       fireSafetyCert: {
         type: Sequelize.STRING,
-      },
-      requirementsStatus: {
-        type: Sequelize.JSONB,
       },
       createdAt: {
         allowNull: false,

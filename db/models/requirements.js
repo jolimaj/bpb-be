@@ -21,7 +21,6 @@ module.exports = (sequelize, DataTypes) => {
       sanityPermit: DataTypes.STRING,
       menroCert: DataTypes.STRING,
       fireSafetyCert: DataTypes.STRING,
-      requirementsStatus: DataTypes.JSONB,
     },
     {
       sequelize,

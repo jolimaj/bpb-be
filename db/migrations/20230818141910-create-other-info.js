@@ -15,11 +15,14 @@ module.exports = {
       businessAddress: {
         type: Sequelize.STRING,
       },
+      businessPostalCode: {
+        type: Sequelize.INTEGER,
+      },
       businessTelephone: {
         type: Sequelize.STRING,
       },
       businessMobile: {
-        type: Sequelize.STRING,
+        type: Sequelize.DOUBLE,
       },
       businessEmail: {
         type: Sequelize.STRING,
@@ -34,7 +37,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       ownersMobile: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DOUBLE,
       },
       ownersEmail: {
         type: Sequelize.STRING,
@@ -46,7 +49,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       emergencyMobile: {
-        type: Sequelize.STRING,
+        type: Sequelize.DOUBLE,
       },
       businessArea: {
         type: Sequelize.INTEGER,
@@ -62,24 +65,31 @@ module.exports = {
       },
       lessorName: {
         type: Sequelize.STRING,
+        defaultValue: null,
       }, //null when not rented
       lessorAddress: {
         type: Sequelize.STRING,
+        defaultValue: null,
       },
       lessorMobile: {
-        type: Sequelize.STRING,
+        type: Sequelize.DOUBLE,
+        defaultValue: 0,
       },
       lessorEmail: {
         type: Sequelize.STRING,
+        defaultValue: null,
       },
       buildingName: {
         type: Sequelize.STRING,
+        defaultValue: null,
       },
       buildingAddress: {
         type: Sequelize.STRING,
+        defaultValue: null,
       },
       monthlyRental: {
         type: Sequelize.DOUBLE,
+        defaultValue: null,
       },
       createdAt: {
         allowNull: false,

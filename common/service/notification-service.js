@@ -38,10 +38,6 @@ class NotificationService {
   async sendSMSNotification(payload) {
     try {
       const requestBody = this.#notificationMapper.smsMapper(payload);
-      console.log(
-        "🚀 ~ file: notification-service.js:41 ~ NotificationService ~ sendSMSNotification ~ requestBody:",
-        requestBody
-      );
       return await this.#vonage.sms.send(requestBody);
     } catch (error) {
       console.log(

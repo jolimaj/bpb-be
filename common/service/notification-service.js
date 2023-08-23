@@ -30,8 +30,12 @@ class NotificationService {
     });
   }
 
-  sendEmailNotification(payload, type) {
-    const requestBody = this.#notificationMapper.emailMapper(payload, type);
+  sendEmailNotification(payload, type, fName) {
+    const requestBody = this.#notificationMapper.emailMapper(
+      payload,
+      type,
+      fName
+    );
     return this.#transporter.sendMail(requestBody);
   }
 

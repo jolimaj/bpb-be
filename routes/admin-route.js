@@ -12,7 +12,7 @@ const {
 const usersController = new UsersController();
 const departmentsController = new DepartmentsModule();
 
-router.post("/approvers", mw.validateStaff, async (req, res) => {
+router.post("/staff", mw.validateStaff, async (req, res) => {
   try {
     if (req.session?.email && req.session?.password) {
       const data = await usersController.addStaff(req.body);
@@ -29,12 +29,22 @@ router.post("/approvers", mw.validateStaff, async (req, res) => {
   }
 });
 
+router.get("/staff", async (req, res) => {
+  const { query, session } = req;
+
+  if (session?.email && session?.password) {
+    const data = await usersController.getAllStaff(query, session?.email);
+    return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
+  }
+
+  return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
+});
+
 router.get("/users", async (req, res) => {
   const { query, session } = req;
 
-  const data = await usersController.getAll(query);
-
   if (session?.email && session?.password) {
+    const data = await usersController.getAll(query, session?.email);
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   }
 
@@ -66,9 +76,11 @@ router.post(
 router.get("/departments", async (req, res) => {
   const { query, session } = req;
 
-  const data = await departmentsController.getDepartments(query);
-
   if (session?.email && session?.password) {
+    const data = await departmentsController.getDepartments(
+      query,
+      session?.email
+    );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   }
 

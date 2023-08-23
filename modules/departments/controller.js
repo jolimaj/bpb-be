@@ -1,8 +1,10 @@
-const { Departments } = require("../../db/models/index");
+const { Departments, User } = require("../../db/models/index");
 class DepartmentsModule {
   #model;
+  #userModel;
   constructor() {
     this.#model = Departments;
+    this.#userModel = User;
   }
 
   getDepartmentsById(id) {
@@ -27,7 +29,14 @@ class DepartmentsModule {
           : {
               limit: 10,
             };
-      return this.#model.findAll(queries);
+      return this.#model.findAll({
+        ...queries,
+        include: [
+          {
+            model: User,
+          },
+        ],
+      });
     } catch (error) {
       return error;
     }

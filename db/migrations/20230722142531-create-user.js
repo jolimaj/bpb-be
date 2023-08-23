@@ -13,6 +13,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
+      departmentID: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+      },
       firstName: {
         type: Sequelize.STRING,
         allowNull: false,

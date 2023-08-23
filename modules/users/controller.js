@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const { responseMessage } = require("../../common/response/code");
-const { User } = require("../../db/models/index");
+const { User, Departments } = require("../../db/models/index");
 const { NOTIF_TYPE } = require("../../common/constant/notification-constant");
 
 const { UserMapper } = require("../../common/mappers/user-mapper");
@@ -32,18 +32,59 @@ class UsersController {
       return error;
     }
   }
-  async getAll(query) {
+  async getAllStaff(query, email) {
     try {
       const queries =
         Object.keys(query).length > 0
           ? {
               where: {
                 firstName: query?.firstName,
+                roleID: 3,
+                email: {
+                  [Op.ne]: email,
+                },
               },
               limit: 10,
             }
           : {
+              where: {
+                roleID: 3,
+                email: {
+                  [Op.ne]: email,
+                },
+              },
               limit: 10,
+            };
+      return await this.#model.findAll({
+        ...queries,
+        include: [{ model: Departments }],
+      });
+    } catch (error) {
+      return error;
+    }
+  }
+  async getAll(query, email) {
+    try {
+      const queries =
+        Object.keys(query).length > 0
+          ? {
+              where: {
+                firstName: query?.firstName,
+                roleID: query?.roleID,
+                email: {
+                  [Op.ne]: email,
+                },
+              },
+              limit: query.limit ?? 10,
+            }
+          : {
+              where: {
+                roleID: query?.roleID,
+                email: {
+                  [Op.ne]: email,
+                },
+              },
+              limit: query.limit ?? 10,
             };
       return await this.#model.findAll(queries);
     } catch (error) {
@@ -108,7 +149,11 @@ class UsersController {
       }
 
       await this.#departmentModule.updateDepartments(result?.dataValues);
-      this.#notifService.sendEmailNotification(result, NOTIF_TYPE.NEW_STAFF);
+      this.#notifService.sendEmailNotification(
+        result,
+        NOTIF_TYPE.NEW_STAFF,
+        payload?.fName
+      );
       return result;
     } catch (error) {
       return error;
@@ -130,7 +175,8 @@ class UsersController {
 
       this.#notifService.sendEmailNotification(
         result,
-        NOTIF_TYPE.UPON_CREATION
+        NOTIF_TYPE.UPON_CREATION,
+        payload?.fName
       );
       return result;
     } catch (error) {

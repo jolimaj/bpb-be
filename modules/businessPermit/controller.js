@@ -90,7 +90,56 @@ class BusinessPermitService {
       return error;
     }
   }
+  async renewBusinessPermit(payload, email) {
+    try {
+      const userData = await this.#userData.getUserByID(email);
+      payload.userID = userData.id;
+      payload.type = APPLICATION_TYPES.NEW;
+      const businessPermits = this.#mapper.apply(payload);
+      const businessPermitResult = await this.#model.create(businessPermits, {
+        raw: true,
+      });
+      payload.id = businessPermitResult.dataValues.id;
 
+      const basicInfo = this.#mapper.basicInfo(payload);
+      const basicInfoResult = await this.#basicInfoModel.create(basicInfo, {
+        raw: true,
+      });
+
+      const otherInfo = this.#mapper.otherInfo(payload);
+      const otherInfoResult = await this.#otherInfoModel.create(otherInfo, {
+        raw: true,
+      });
+
+      const businessActivity = this.#mapper.businessActivity(payload);
+      const businessActivityResult =
+        await this.#businessActivityModel.bulkCreate(businessActivity, {
+          raw: true,
+        });
+
+      const bfp = this.#mapper.bfpForm(payload);
+
+      const bfpResult = await this.#bfpForm.create(bfp, {
+        raw: true,
+      });
+      const requirementResult = await this.#requirement.create(
+        { businessPermitID: payload.id },
+        {
+          raw: true,
+        }
+      );
+      return {
+        businessPermitResult,
+        basicInfoResult,
+        otherInfoResult,
+        businessActivityResult,
+        bfpResult,
+        requirementResult,
+      };
+    } catch (error) {
+      return error;
+    }
+  }
   async getBusinessPermitByUser(userID, id) {
     try {
       const queries = {
@@ -123,26 +172,25 @@ class BusinessPermitService {
       return error;
     }
   }
-  async getBusinessPermits(query, email) {
+  async getBusinessPermits(query, email, types) {
     try {
-      const { id } = await this.#userData.getUserByID(email);
-      const departmentData = await this.#departmentModel.findOne({
-        where: {
-          userId: id,
-        },
-        raw: true,
-      });
+      const type =
+        types === "new" ? APPLICATION_TYPES.NEW : APPLICATION_TYPES.RENEW;
+      const { departmentID } = await this.#userData.getUserByID(email);
+
       const queries = query?.id
         ? {
             where: {
-              assignedToDepartmentID: departmentData.id,
+              assignedToDepartmentID: departmentID,
               id: query?.id,
+              type,
             },
             limit: query?.limit ?? 10,
           }
         : {
             where: {
-              assignedToDepartmentID: departmentData.id,
+              assignedToDepartmentID: departmentID,
+              type,
             },
             limit: query?.limit ?? 10,
           };
@@ -191,102 +239,135 @@ class BusinessPermitService {
       return error;
     }
   }
-  async reviewByMPDC(id, payload) {
-    try {
-      payload.assignedToDepartmentID = DEPARTMENT_ID.MTO;
-      payload.approvedByMPDC = true;
 
-      const reviewed = await this.#model.update(payload, { where: { id } });
-      return reviewed;
-    } catch (error) {
-      return error;
-    }
-  }
-  async reviewByMTOFirst(id, payload) {
-    try {
-      payload.assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
-      if (payload.type === APPLICATION_TYPES.RENEW) {
-        payload.assignedToDepartmentID = DEPARTMENT_ID.BFP;
-      }
-      payload.approvedByMTO1 = true;
-      const reviewed = await this.#model.update(payload, { where: { id } });
-      return reviewed;
-    } catch (error) {
-      return error;
-    }
-  }
-  async reviewBySANIDAD(id, payload) {
-    try {
-      payload.assignedToDepartmentID = DEPARTMENT_ID.MEO;
-      if (payload.type === APPLICATION_TYPES.RENEW) {
-        payload.assignedToDepartmentID = DEPARTMENT_ID.BPLO;
-      }
-      payload.approvedBySANIDAD = true;
-      const reviewed = await this.#model.update(payload, { where: { id } });
-      return reviewed;
-    } catch (error) {
-      return error;
-    }
-  }
-  async reviewByMEO(id, payload) {
-    try {
-      payload.assignedToDepartmentID = DEPARTMENT_ID.MTO;
-      payload.approvedByMEO = true;
-      const reviewed = await this.#model.update(payload, { where: { id } });
-      return reviewed;
-    } catch (error) {
-      return error;
-    }
-  }
+  #assigneeNewPermit(assignee, payload) {
+    let assignedToDepartmentID;
+    let approvedByMPDC,
+      approvedByMTO1,
+      approvedByMTO2,
+      approvedByBPLO1,
+      approvedByMEO,
+      approvedByMENRO,
+      approvedBySANIDAD,
+      approvedByBFP;
+    let status;
+    switch (assignee) {
+      case DEPARTMENT_ID.MPDC:
+        assignedToDepartmentID = DEPARTMENT_ID.MTO;
+        approvedByMPDC = true;
+        break;
+      case DEPARTMENT_ID.MTO:
+        if (payload?.approvedByMTO1) {
+          assignedToDepartmentID = DEPARTMENT_ID.MENRO;
+          approvedByMTO2 = true;
+        }
 
-  async reviewByMTOSecond(id, payload) {
-    try {
-      payload.assignedToDepartmentID = DEPARTMENT_ID.MENRO;
-      payload.approvedByMTO2 = true;
-      const reviewed = await this.#model.update(payload, { where: { id } });
-      return reviewed;
-    } catch (error) {
-      return error;
+        assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
+        approvedByMTO1 = true;
+        break;
+      case DEPARTMENT_ID.SANIDAD:
+        assignedToDepartmentID = DEPARTMENT_ID.MEO;
+        approvedBySANIDAD = true;
+        break;
+      case DEPARTMENT_ID.MEO:
+        assignedToDepartmentID = DEPARTMENT_ID.MTO;
+        approvedByMEO = true;
+        break;
+      case DEPARTMENT_ID.MENRO:
+        assignedToDepartmentID = DEPARTMENT_ID.BFP;
+        approvedByMENRO = true;
+        break;
+      case DEPARTMENT_ID.BFP:
+        assignedToDepartmentID = DEPARTMENT_ID.BPLO;
+        approvedByBFP = true;
+        break;
+      case DEPARTMENT_ID.BPLO:
+        approvedByBPLO1 = true;
+        status = 1;
+        break;
     }
+    return {
+      assignedToDepartmentID,
+      approvedByMPDC,
+      approvedByMTO1,
+      approvedByMTO2,
+      approvedByBPLO1,
+      approvedByMEO,
+      approvedByMENRO,
+      approvedBySANIDAD,
+      approvedByBFP,
+      status,
+    };
   }
-  async reviewByMENRO(id, payload) {
-    try {
-      payload.assignedToDepartmentID = DEPARTMENT_ID.BFP;
-      payload.approvedByMENRO = true;
-      const reviewed = await this.#model.update(payload, { where: { id } });
-      return reviewed;
-    } catch (error) {
-      return error;
+  #assigneeRenewalPermit(assignee, payload) {
+    let assignedToDepartmentID;
+    let approvedByMTO1,
+      approvedByBPLO1,
+      approvedByBPLO2,
+      approvedBySANIDAD,
+      approvedByBFP,
+      status;
+    switch (assignee) {
+      case DEPARTMENT_ID.BPLO:
+        if (payload.approvedByBPLO1) {
+          assignedToDepartmentID = DEPARTMENT_ID.MTO;
+          approvedByBPLO2 = true;
+        }
+        assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
+        approvedByBPLO1 = true;
+        break;
+      case DEPARTMENT_ID.SANIDAD:
+        assignedToDepartmentID = DEPARTMENT_ID.BPLO;
+        approvedBySANIDAD = true;
+        break;
+      case DEPARTMENT_ID.MTO:
+        assignedToDepartmentID = DEPARTMENT_ID.BFP;
+        approvedByMTO1 = true;
+        break;
+      case DEPARTMENT_ID.BFP:
+        assignedToDepartmentID = DEPARTMENT_ID.BPLO;
+        approvedByBFP = true;
+        status = 1;
+        break;
     }
+    return {
+      assignedToDepartmentID,
+      approvedByMTO1,
+      approvedByBPLO1,
+      approvedByBPLO2,
+      approvedBySANIDAD,
+      approvedByBFP,
+      status,
+    };
   }
-  async reviewByBFP(id, payload) {
-    try {
-      payload.assignedToDepartmentID = DEPARTMENT_ID.BPLO;
-      payload.approvedByBFP = true;
-      const reviewed = await this.#model.update(payload, { where: { id } });
-      return reviewed;
-    } catch (error) {
-      return error;
+  async #reviewByType(type, assignee, payload) {
+    let action;
+    switch (type) {
+      case APPLICATION_TYPES.RENEW:
+        action = this.#assigneeRenewalPermit(assignee, payload);
+
+        break;
+      default:
+        action = this.#assigneeNewPermit(assignee, payload);
+
+        break;
     }
+    return action;
   }
-  async reviewByBPLOFirst(id, payload) {
+  async reviewPermit(id) {
+    const { dataValues } = await this.getBusinessPermitByID(id);
+
     try {
-      if (payload.type === APPLICATION_TYPES.RENEW) {
-        payload.assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
-      }
-      payload.approvedByBPLO1 = true;
-      const reviewed = await this.#model.update(payload, { where: { id } });
-      return reviewed;
-    } catch (error) {
-      return error;
-    }
-  }
-  async reviewByBPLOSecond(id, payload) {
-    try {
-      payload.assignedToDepartmentID = DEPARTMENT_ID.MTO;
-      payload.approvedByBPLO2 = true;
-      const reviewed = await this.#model.update(payload, { where: { id } });
-      return reviewed;
+      const reviewed = await this.#reviewByType(
+        dataValues?.type,
+        dataValues?.assignedToDepartmentID,
+        dataValues
+      );
+      const result = await this.#model.update(reviewed, {
+        where: { id },
+        plain: true,
+      });
+      return result;
     } catch (error) {
       return error;
     }

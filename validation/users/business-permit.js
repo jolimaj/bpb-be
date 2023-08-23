@@ -1,4 +1,7 @@
 const Joi = require("joi");
+const {
+  APPLICATION_TYPES,
+} = require("../../common/constant/business-permit-constant");
 
 module.exports.validateSignature = {
   schema: Joi.object({
@@ -89,15 +92,28 @@ module.exports.validatePermit = {
       .allow(null, ""),
     line1: Joi.string().label("First Line of Business").required(),
     units1: Joi.number().label("First No. of Units").optional().allow(null, ""),
-    capital1: Joi.number().label("First Capitalization").required(),
-    grossEssential1: Joi.number()
-      .label("First Essential Gross")
-      .optional()
-      .allow(null, ""),
-    grossNonEssential1: Joi.number()
-      .label("First Non-Essential Gross")
-      .optional()
-      .allow(null, ""),
+    capital1: Joi.number().when("type", {
+      is: APPLICATION_TYPES.NEW,
+      then: Joi.number().required().label("First Capitalization"),
+      otherwise: Joi.forbidden(),
+    }),
+    grossEssential1: Joi.number().when("type", {
+      is: APPLICATION_TYPES.NEW,
+      then: Joi.forbidden(),
+      otherwise: Joi.number()
+        .label("First Essential Gross")
+        .optional()
+        .allow(null, ""),
+    }),
+
+    grossNonEssential1: Joi.number().when("type", {
+      is: APPLICATION_TYPES.NEW,
+      then: Joi.forbidden(),
+      otherwise: Joi.number()
+        .label("First Non-Essential Gross")
+        .optional()
+        .allow(null, ""),
+    }),
     line1: Joi.string().label("First Line of Business").required(),
     units1: Joi.number().label("First No. of Units").optional().allow(null, ""),
     capital1: Joi.number().label("First Capitalization").required(),

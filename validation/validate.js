@@ -11,6 +11,8 @@ const {
 const {
   validatePermit,
   validateSignature,
+  validateSignatureApprover,
+  validateApprover,
 } = require("./users/business-permit");
 
 function schemaValidate(template, req, res, next) {
@@ -48,6 +50,10 @@ const validate = {
     schemaValidate(validatePermit, req, res, next),
   validateSignature: (req, res, next) =>
     schemaValidate(validateSignature, req, res, next),
+  validateSignatureApprover: (req, res, next) =>
+    schemaValidate(validateSignatureApprover, req, res, next),
+  validateApprover: (req, res, next) =>
+    schemaValidate(validateApprover, req, res, next),
 };
 
 module.exports = validate;

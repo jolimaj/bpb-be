@@ -14,6 +14,9 @@ class UploaderService {
   async uploadFiles(file, folder) {
     cloudinary.config(this.#cloudinaryConfig);
     try {
+      if (!file) {
+        return null;
+      }
       const b64 = Buffer.from(file.buffer).toString("base64");
       let dataURI = "data:" + file.mimetype + ";base64," + b64;
       const res = await cloudinary.uploader.upload(dataURI, {

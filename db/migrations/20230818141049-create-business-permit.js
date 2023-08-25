@@ -67,6 +67,18 @@ module.exports = {
       assignedToDepartmentID: {
         type: Sequelize.INTEGER,
       },
+      signatureMTO: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      signatureBFP: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      signatureBPLO: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

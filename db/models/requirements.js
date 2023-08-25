@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       sanityPermit: DataTypes.STRING,
       menroCert: DataTypes.STRING,
       fireSafetyCert: DataTypes.STRING,
+      water: DataTypes.STRING,
     },
     {
       sequelize,

@@ -58,6 +58,9 @@ module.exports = {
       fireSafetyCert: {
         type: Sequelize.STRING,
       },
+      water: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

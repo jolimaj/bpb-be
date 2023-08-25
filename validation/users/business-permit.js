@@ -17,6 +17,38 @@ module.exports.validateSignature = {
   }),
   location: "files",
 };
+module.exports.validateSignatureApprover = {
+  schema: Joi.object({
+    signatureMTO: Joi.any()
+      .meta({ swaggerType: "file" })
+      .label("MTO Signature")
+      .optional()
+      .messages({
+        "any.required":
+          "{{#label}} is required! or Please check if file exists.",
+        "string.empty": "{{#label}} cannot be empty!!",
+      }),
+    signatureBFP: Joi.any()
+      .meta({ swaggerType: "file" })
+      .label("BFP Signature")
+      .optional()
+      .messages({
+        "any.required":
+          "{{#label}} is required! or Please check if file exists.",
+        "string.empty": "{{#label}} cannot be empty!!",
+      }),
+    signatureBPLO: Joi.any()
+      .meta({ swaggerType: "file" })
+      .label("BPLO Signature")
+      .optional()
+      .messages({
+        "any.required":
+          "{{#label}} is required! or Please check if file exists.",
+        "string.empty": "{{#label}} cannot be empty!!",
+      }),
+  }),
+  location: "file",
+};
 
 module.exports.validatePermit = {
   schema: Joi.object({
@@ -186,4 +218,11 @@ module.exports.validatePermit = {
     totalFloorArea: Joi.string().label("Total Floor Area").required(),
   }),
   location: "body",
+};
+
+module.exports.validateApprover = {
+  schema: Joi.object({
+    id: Joi.string().label("Business Permit APplication No").required(),
+  }),
+  location: "queryStringParameters",
 };

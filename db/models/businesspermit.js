@@ -30,6 +30,9 @@ module.exports = (sequelize, DataTypes) => {
       approvedByBFP: DataTypes.BOOLEAN,
       approvedByBPLO1: DataTypes.BOOLEAN,
       approvedByBPLO2: DataTypes.BOOLEAN,
+      signatureMTO: DataTypes.STRING,
+      signatureBFP: DataTypes.STRING,
+      signatureBPLO: DataTypes.STRING,
     },
     {
       sequelize,

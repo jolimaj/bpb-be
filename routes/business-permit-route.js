@@ -6,7 +6,7 @@ const {
   BusinessPermitService,
 } = require("../modules/businessPermit/controller");
 const { UsersController } = require("../modules/users/controller");
-const { UploaderService } = require("../common/service/uploader");
+const { UploaderService } = require("../common/services/uploader");
 const { DepartmentsModule } = require("../modules/departments/controller");
 const {
   RequirementsController,
@@ -24,7 +24,7 @@ const usersController = new UsersController();
 const requirementsController = new RequirementsController();
 
 router.put(
-  "/service/requirements/:id",
+  "/services/requirements/:id",
   upload.any("requirements"),
   async (req, res) => {
     try {
@@ -61,7 +61,7 @@ router.put(
   }
 );
 
-router.get("/service/requirements", async (req, res) => {
+router.get("/services/requirements", async (req, res) => {
   try {
     const { session } = req;
     if (session?.email && session?.password) {
@@ -83,7 +83,7 @@ router.get("/service/requirements", async (req, res) => {
 });
 
 router.post(
-  "/service/apply",
+  "/services/businessPermit",
   upload.single("applicantSignature"),
   mw.validateSignature,
   mw.validatePermit,
@@ -113,7 +113,7 @@ router.post(
   }
 );
 
-router.get("/service/apply/:userID/:id", async (req, res) => {
+router.get("/services/businessPermit/:userID/:id", async (req, res) => {
   try {
     const { params, session } = req;
     if (session?.email && session?.password) {
@@ -170,7 +170,7 @@ router.get("/departments", async (req, res) => {
 
 //   return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 // });
-router.get("/departments/businessPermits/new", async (req, res) => {
+router.get("/departments/businessPermit/new", async (req, res) => {
   const { query, session } = req;
 
   if (session?.email && session?.password) {
@@ -184,7 +184,7 @@ router.get("/departments/businessPermits/new", async (req, res) => {
 
   return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 });
-router.get("/departments/businessPermits/renew", async (req, res) => {
+router.get("/departments/businessPermit/renew", async (req, res) => {
   const { query, session } = req;
 
   if (session?.email && session?.password) {
@@ -199,23 +199,41 @@ router.get("/departments/businessPermits/renew", async (req, res) => {
   return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 });
 
-router.put("/departments/businessPermits/:id", async (req, res) => {
-  try {
-    const { params, body, session } = req;
+router.put(
+  "/departments/businessPermit/:id",
+  mw.validateApprover,
+  upload.any("file"),
+  async (req, res) => {
+    try {
+      const { params, session, files } = req;
 
-    if (session?.email && session?.password) {
-      const data = await businessPermit.reviewPermit(params.id, body);
-      return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+      if (session?.email && session?.password) {
+        const body = await uploaderService.uploadFiles(
+          files[0],
+          files[0].fieldname
+        );
+        // body.applicantSignature = await uploaderService.uploadFiles(
+        //   file,
+        //   "applicantSignature"
+        // );
+        const data = await businessPermit.reviewPermit(
+          params.id,
+          body,
+          files[0].fieldname
+        );
+
+        return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+      }
+
+      return res.error(
+        400,
+        responseCodes.LOGIN_FIRST,
+        responseMessage.LOGIN_FIRST
+      );
+    } catch (e) {
+      return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
     }
-
-    return res.error(
-      400,
-      responseCodes.LOGIN_FIRST,
-      responseMessage.LOGIN_FIRST
-    );
-  } catch (e) {
-    return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
   }
-});
+);
 
 module.exports = router;

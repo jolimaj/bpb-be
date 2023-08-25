@@ -240,17 +240,20 @@ class BusinessPermitService {
     }
   }
 
-  #assigneeNewPermit(assignee, payload) {
-    let assignedToDepartmentID;
-    let approvedByMPDC,
+  #assigneeNewPermit(assignee, payload, body) {
+    let assignedToDepartmentID,
+      approvedByMPDC,
       approvedByMTO1,
       approvedByMTO2,
       approvedByBPLO1,
       approvedByMEO,
       approvedByMENRO,
       approvedBySANIDAD,
-      approvedByBFP;
-    let status;
+      approvedByBFP,
+      status,
+      signatureMTO,
+      signatureBFP,
+      signatureBPLO;
     switch (assignee) {
       case DEPARTMENT_ID.MPDC:
         assignedToDepartmentID = DEPARTMENT_ID.MTO;
@@ -260,6 +263,7 @@ class BusinessPermitService {
         if (payload?.approvedByMTO1) {
           assignedToDepartmentID = DEPARTMENT_ID.MENRO;
           approvedByMTO2 = true;
+          signatureMTO = body?.signatureMTO;
         }
 
         assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
@@ -280,10 +284,12 @@ class BusinessPermitService {
       case DEPARTMENT_ID.BFP:
         assignedToDepartmentID = DEPARTMENT_ID.BPLO;
         approvedByBFP = true;
+        signatureBFP = body?.signatureBFP;
         break;
       case DEPARTMENT_ID.BPLO:
         approvedByBPLO1 = true;
         status = 1;
+        signatureBPLO = body?.signatureBPLO;
         break;
     }
     return {
@@ -297,21 +303,28 @@ class BusinessPermitService {
       approvedBySANIDAD,
       approvedByBFP,
       status,
+      signatureMTO,
+      signatureBFP,
+      signatureBPLO,
     };
   }
-  #assigneeRenewalPermit(assignee, payload) {
+  #assigneeRenewalPermit(assignee, payload, body) {
     let assignedToDepartmentID;
     let approvedByMTO1,
       approvedByBPLO1,
       approvedByBPLO2,
       approvedBySANIDAD,
       approvedByBFP,
-      status;
+      status,
+      signatureMTO,
+      signatureBFP,
+      signatureBPLO;
     switch (assignee) {
       case DEPARTMENT_ID.BPLO:
         if (payload.approvedByBPLO1) {
           assignedToDepartmentID = DEPARTMENT_ID.MTO;
           approvedByBPLO2 = true;
+          signatureBPLO = body?.signatureBPLO;
         }
         assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
         approvedByBPLO1 = true;
@@ -323,11 +336,13 @@ class BusinessPermitService {
       case DEPARTMENT_ID.MTO:
         assignedToDepartmentID = DEPARTMENT_ID.BFP;
         approvedByMTO1 = true;
+        signatureMTO = body?.signatureMTO;
         break;
       case DEPARTMENT_ID.BFP:
         assignedToDepartmentID = DEPARTMENT_ID.BPLO;
         approvedByBFP = true;
         status = 1;
+        signatureBFP = body?.signatureBFP;
         break;
     }
     return {
@@ -338,30 +353,62 @@ class BusinessPermitService {
       approvedBySANIDAD,
       approvedByBFP,
       status,
+      signatureMTO,
+      signatureBFP,
+      signatureBPLO,
     };
   }
-  async #reviewByType(type, assignee, payload) {
+  async #reviewByType(type, assignee, payload, body) {
     let action;
     switch (type) {
       case APPLICATION_TYPES.RENEW:
-        action = this.#assigneeRenewalPermit(assignee, payload);
+        action = this.#assigneeRenewalPermit(assignee, payload, body);
 
         break;
       default:
-        action = this.#assigneeNewPermit(assignee, payload);
+        action = this.#assigneeNewPermit(assignee, payload, body);
 
         break;
     }
     return action;
   }
-  async reviewPermit(id) {
+  async #reviewSignature(files, keyName) {
+    let signatureMTO, signatureBFP, signatureBPLO;
+    switch (keyName) {
+      case "signatureMTO":
+        signatureMTO = files;
+        break;
+      case "signatureBFP":
+        signatureBFP = files;
+        break;
+      case "signatureBFP":
+        signatureBPLO = files;
+        break;
+    }
+    return {
+      signatureMTO,
+      signatureBFP,
+      signatureBPLO,
+    };
+  }
+  async reviewPermit(id, files, keyName) {
     const { dataValues } = await this.getBusinessPermitByID(id);
 
     try {
+      const payload = await this.#reviewSignature(files, keyName);
+      console.log(
+        "🚀 ~ file: controller.js:399 ~ BusinessPermitService ~ reviewPermit ~ payload:",
+        payload
+      );
       const reviewed = await this.#reviewByType(
         dataValues?.type,
         dataValues?.assignedToDepartmentID,
-        dataValues
+        dataValues,
+        payload
+      );
+      console.log(
+        "🚀 ~ file: controller.js:409 ~ BusinessPermitService ~ reviewPermit ~ reviewed:",
+        reviewed
       );
       const result = await this.#model.update(reviewed, {
         where: { id },

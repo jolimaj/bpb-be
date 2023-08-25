@@ -17,7 +17,7 @@ module.exports = {
             "$2a$12$Bo4qMPi6idAbwpvSoSTBouIWssR2y6kFIbIbEXlPFIzABmIzcedqO",
         },
       ],
-      {}
+      { fields: ["email"], ignoreDuplicates: true }
     );
   },
 

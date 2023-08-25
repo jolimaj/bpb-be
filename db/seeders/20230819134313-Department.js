@@ -35,7 +35,7 @@ module.exports = {
           code: "BFP",
         },
       ],
-      {}
+      { fields: ["name"], ignoreDuplicates: true }
     );
   },
 

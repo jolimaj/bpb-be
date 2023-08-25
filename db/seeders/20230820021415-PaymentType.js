@@ -16,7 +16,7 @@ module.exports = {
           name: "Quarterly",
         },
       ],
-      {}
+      { fields: ["name"], ignoreDuplicates: true }
     );
   },
 

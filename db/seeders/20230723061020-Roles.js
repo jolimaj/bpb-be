@@ -16,7 +16,7 @@ module.exports = {
           name: "Department Approver",
         },
       ],
-      {}
+      { fields: ["name"], ignoreDuplicates: true }
     );
   },
 

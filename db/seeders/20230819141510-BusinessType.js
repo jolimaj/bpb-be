@@ -19,7 +19,7 @@ module.exports = {
           name: "Cooperative",
         },
       ],
-      {}
+      { fields: ["name"], ignoreDuplicates: true }
     );
   },
 

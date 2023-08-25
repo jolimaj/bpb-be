@@ -1,5 +1,5 @@
 {
-  "name": "Business Permit ng Bayan (BPB)",
+  "name": "business-permit-bayan",
   "version": "1.0.0",
   "description": "About\r Description\r This a boiler plate for nodejs, express and postgres sql backend development.",
   "main": "index.js",

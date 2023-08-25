@@ -6,7 +6,7 @@ const {
   BusinessPermitService,
 } = require("../modules/businessPermit/controller");
 const { UsersController } = require("../modules/users/controller");
-const { UploaderService } = require("../common/services/uploader");
+const { UploaderService } = require("../common/service/uploader");
 const { DepartmentsModule } = require("../modules/departments/controller");
 const {
   RequirementsController,

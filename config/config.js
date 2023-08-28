@@ -8,9 +8,7 @@ module.exports = {
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
     port: process.env.DB_PORT,
-    ssl: {
-      rejectUnauthorized: true,
-    },
+    ssl: true,
     pool: {
       min: 2,
       max: 10,

@@ -9,7 +9,7 @@ module.exports = {
     dialect: process.env.DB_DIALECT,
     port: process.env.DB_PORT,
     ssl: {
-      rejectUnauthorized: false,
+      rejectUnauthorized: true,
     },
     pool: {
       min: 2,

@@ -5,7 +5,6 @@
   "main": "index.js",
   "Author": "Jolima Javin-Software Engineer",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node index.js",
     "build": "npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
     "start": "npm run build  && node index.js",

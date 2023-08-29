@@ -25,7 +25,6 @@ module.exports = {
     port: process.env.DB_PORT,
     native: true,
     dialectOptions: {
-      project: "bb-core-demo-db",
       ssl: {
         require: true,
         rejectUnauthorized: false,

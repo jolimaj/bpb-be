@@ -1,0 +1,14 @@
+application:
+  name: bpb
+  project: package.json
+  publicly_accessible: true
+databases:
+- type: postgresql
+  version: "12"
+  name: my-psql
+routers:
+- name: my-router
+  routes:
+  - application_name: bpb
+    paths:
+    - /

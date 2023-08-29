@@ -6,7 +6,6 @@
   "Author": "Jolima Javin-Software Engineer",
   "scripts": {
     "dev": "node index.js",
-    "build": "npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && node index.js",
     "start": "node index.js",
     "db:generate": "npx sequelize-cli model:generate",
     "db:migrate": "npx sequelize-cli db:migrate",

@@ -11,7 +11,7 @@ router.post("/sign-in", mw.validateLogin, async (req, res) => {
     const data = await usersController.loginUser(body);
     session.email = body.email;
     session.password = body.password;
-    return res.success(200, responseCodes.LOGIN_SUCCESS, data);
+    return res.success(200, responseCodes.LOGIN_SUCCESS, { data, session });
   } catch (e) {
     console.log("🚀 ~ file: login-route.js:16 ~ router.post ~ e:", e);
     return res.error(400, responseCodes.LOGIN_FAILED, e);

@@ -10,15 +10,12 @@ const { okResp, errResp } = require("./helpers/response/response-helper");
 const app = express();
 app.use(bodyParser.json());
 
-const oneDay = 1000 * 60 * 60 * 24;
-
 //session middleware
 app.use(
   sessions({
-    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
-    saveUninitialized: true,
-    cookie: { maxAge: oneDay },
-    resave: false,
+    resave: false, // don't save session if unmodified
+    saveUninitialized: false, // don't create session until something stored
+    secret: "keyboard cat",
   })
 );
 

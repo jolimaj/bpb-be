@@ -21,13 +21,7 @@ app.use(
 
 app.use(cookieParser());
 
-app.use(
-  cors({
-    origin: process.env.MAIN_URL,
-    credentials: true,
-    optionSuccessStatus: 200,
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

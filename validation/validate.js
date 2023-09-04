@@ -2,6 +2,7 @@ const {
   validateRegister,
   validateLogin,
   validateUserID,
+  validateEmail,
 } = require("./users/users-validation");
 const {
   validateStaff,
@@ -54,6 +55,8 @@ const validate = {
     schemaValidate(validateSignatureApprover, req, res, next),
   validateApprover: (req, res, next) =>
     schemaValidate(validateApprover, req, res, next),
+  validateEmail: (req, res, next) =>
+    schemaValidate(validateEmail, req, res, next),
 };
 
 module.exports = validate;

@@ -35,4 +35,12 @@ router.put("/sign-in/:id", async (req, res) => {
     return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
   }
 });
+router.post("/sign-in/forgotPassword", mw.validateEmail, async (req, res) => {
+  try {
+    const data = await usersController.forgotPassword(req.body);
+    return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+  } catch (e) {
+    return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
+  }
+});
 module.exports = router;

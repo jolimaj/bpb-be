@@ -19,6 +19,7 @@ const responseCodes = {
 };
 
 const responseMessage = {
+  EMAIL_NOT_FOUND: "The provided email address is not found!!",
   EMAIL_ALREADY_TAKEN:
     "The email address or phone number provided is already in use.",
   INVALID_EMAIL: "The provided email address is incorrect!!",

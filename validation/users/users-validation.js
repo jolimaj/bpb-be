@@ -39,3 +39,10 @@ module.exports.validateLogin = {
   }),
   location: "body",
 };
+
+module.exports.validateEmail = {
+  schema: Joi.object({
+    email: Joi.string().email().trim(true).required(),
+  }),
+  location: "body",
+};

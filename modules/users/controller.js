@@ -119,6 +119,23 @@ class UsersController {
       retur;
     }
   }
+  async forgotPassword(payload) {
+    try {
+      const emailData = await this.#model.findOne({
+        where: { email: payload.email },
+        raw: true,
+      });
+      if (!emailData) {
+        return Promise.reject(responseMessage.INVALID_EMAIL);
+      }
+      this.#notifService.sendEmailNotification(
+        { ...payload, id: emailData.id },
+        NOTIF_TYPE.PASSWORD_RESET
+      );
+    } catch (error) {
+      retur;
+    }
+  }
   async uploadImage(id) {
     try {
       return await this.#model.update(

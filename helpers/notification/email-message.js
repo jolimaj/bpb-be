@@ -10,7 +10,7 @@ class EmailHelper {
 
         If you did not initiate this request or believe it to be an error, please disregard this email. Your account remains safe, and no action is required.
 
-        To proceed with the password reset, please click on the following link to access the password reset page: ${process.env.MAIN_URL}`;
+        To proceed with the password reset, please click on the following link to access the password reset page: ${process.env.MAIN_URL}/signin/forgotPassword/${id}`;
         break;
       case NOTIF_TYPE.NEW_STAFF:
         text = `Dear ${fName},

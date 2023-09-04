@@ -1,3 +1,4 @@
+const { Op, Sequelize } = require("sequelize");
 const {
   BasicInfo,
   BusinessActivity,
@@ -20,7 +21,6 @@ const {
 
 class BusinessPermitService {
   #model;
-  #departmentModel;
   #mapper;
   #basicInfoModel;
   #otherInfoModel;
@@ -37,7 +37,6 @@ class BusinessPermitService {
     this.#businessActivityModel = BusinessActivity;
     this.#bfpForm = BFPForm;
     this.#userData = new UsersController();
-    this.#departmentModel = Departments;
     this.#requirement = Requirements;
   }
 
@@ -415,6 +414,65 @@ class BusinessPermitService {
         plain: true,
       });
       return result;
+    } catch (error) {
+      return error;
+    }
+  }
+  async countData(query) {
+    try {
+      const TODAY_START = new Date().setHours(0, 0, 0, 0);
+      const NOW = new Date();
+      const dailynewApplication = await this.#model.count({
+        where: {
+          type: 1,
+          createdAt: {
+            [Op.gt]: TODAY_START,
+            [Op.lt]: NOW,
+          },
+        },
+      });
+
+      const monthlyNew = await this.#model.count({
+        attributes: [
+          [
+            Sequelize.fn("DATE_TRUNC", "month", Sequelize.col("createdAt")),
+            "month",
+          ],
+          [Sequelize.fn("COUNT", "id"), "totalCount"],
+        ],
+        where: { type: 1 },
+        group: [
+          Sequelize.fn("date_trunc", "month", Sequelize.col("createdAt")),
+        ],
+      });
+      const monthlyReNew = await this.#model.count({
+        attributes: [
+          [
+            Sequelize.fn("DATE_TRUNC", "month", Sequelize.col("createdAt")),
+            "month",
+          ],
+          [Sequelize.fn("COUNT", "id"), "totalCount"],
+        ],
+        where: { type: 2 },
+        group: [
+          Sequelize.fn("date_trunc", "month", Sequelize.col("createdAt")),
+        ],
+      });
+      const dailyrenewalApplication = await this.#model.count({
+        where: {
+          type: 2,
+          createdAt: {
+            [Op.gt]: TODAY_START,
+            [Op.lt]: NOW,
+          },
+        },
+      });
+      return {
+        dailynewApplication,
+        monthlyNew,
+        dailyrenewalApplication,
+        monthlyReNew,
+      };
     } catch (error) {
       return error;
     }

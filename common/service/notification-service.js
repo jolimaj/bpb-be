@@ -32,6 +32,10 @@ class NotificationService {
 
   sendEmailNotification(payload, type) {
     const requestBody = this.#notificationMapper.emailMapper(payload, type);
+    console.log(
+      "🚀 ~ file: notification-service.js:35 ~ NotificationService ~ sendEmailNotification ~ requestBody:",
+      requestBody
+    );
     return this.#transporter.sendMail(requestBody);
   }
 

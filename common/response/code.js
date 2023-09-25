@@ -16,6 +16,7 @@ const responseCodes = {
   LOGIN_FIRST: "LOGIN_FIRST",
   LOGIN_SUCCESS: "LOGIN_SUCCESS",
   LOGIN_FAILED: "LOGIN_FAILED",
+  URL_EXPIRE: "LOGIN_FAILED",
 };
 
 const responseMessage = {
@@ -25,6 +26,7 @@ const responseMessage = {
   INVALID_EMAIL: "The provided email address is incorrect!!",
   INVALID_PASSWORD: "The provided password is incorrect!!",
   LOGIN_FIRST: "Cannot access this page! Please sign in first.",
+  URL_EXPIRE_MESSAGE: "This link was already expired.",
 };
 
 module.exports = { responseCodes, responseMessage };

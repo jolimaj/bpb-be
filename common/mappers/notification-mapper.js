@@ -12,7 +12,11 @@ class NotificationMapper {
       from: "'Email from @businesspermitngbayan.vercel.app <donotreplybpbbusinesspermitngbayan@gmail.com>'",
       to: payload?.email,
       subject: this.#emailHelper.subject(type),
-      text: this.#emailHelper.message(payload?.id, type),
+      text: this.#emailHelper.message(
+        payload?.id,
+        payload?.notifParamsId,
+        type
+      ),
     };
   }
 

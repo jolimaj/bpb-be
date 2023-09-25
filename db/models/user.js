@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       this.hasOne(models.Roles, { foreignKey: "roleID" });
+      this.hasOne(models.NotifParams, { foreignKey: "userID" });
       this.belongsTo(models.Departments, { foreignKey: "departmentID" });
     }
   }

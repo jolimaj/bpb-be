@@ -135,13 +135,17 @@ router.get("/services/businessPermit/:userID/:id", async (req, res) => {
 });
 
 router.put(
-  "/:id",
+  "/:id/:notifParamsId",
   mw.validatePassword,
   mw.validateStaffID,
   async (req, res) => {
     try {
       const { body, params } = req;
-      const data = await usersController.addPassword(params.id, body.password);
+      const data = await usersController.addPassword(
+        params.id,
+        params.notifParamsId,
+        body.password
+      );
       return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
     } catch (e) {
       return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
@@ -149,11 +153,11 @@ router.put(
   }
 );
 router.get("/departments", async (req, res) => {
-  const { query, session } = req;
+  const { query, sessionStore } = req;
+  const session = sessionStore.sessions;
+  if (Object.keys(session).length > 0) {
+    const data = await departmentController.getDepartments(query);
 
-  const data = await departmentController.getDepartments(query);
-
-  if (session?.email && session?.password) {
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   }
 
@@ -171,12 +175,12 @@ router.get("/departments", async (req, res) => {
 //   return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 // });
 router.get("/departments/businessPermit/new", async (req, res) => {
-  const { query, session } = req;
-
-  if (session?.email && session?.password) {
+  const { query, sessionStore } = req;
+  const session = sessionStore.sessions;
+  if (Object.keys(session).length > 0) {
     const data = await businessPermit.getBusinessPermits(
       query,
-      session?.email,
+      JSON.parse(session[Object.keys(session)])?.email,
       "new"
     );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
@@ -185,12 +189,12 @@ router.get("/departments/businessPermit/new", async (req, res) => {
   return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 });
 router.get("/departments/businessPermit/renew", async (req, res) => {
-  const { query, session } = req;
-
-  if (session?.email && session?.password) {
+  const { query, sessionStore } = req;
+  const session = sessionStore.sessions;
+  if (Object.keys(session).length > 0) {
     const data = await businessPermit.getBusinessPermits(
       query,
-      session?.email,
+      JSON.parse(session[Object.keys(session)])?.email,
       "renew"
     );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);

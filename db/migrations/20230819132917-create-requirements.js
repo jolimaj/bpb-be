@@ -61,6 +61,9 @@ module.exports = {
       water: {
         type: Sequelize.STRING,
       },
+      mtoAssestmentRecord: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

@@ -12,7 +12,8 @@ module.exports.validateStaff = {
     mName: Joi.string()
       .pattern(REGULAR_EXPRESSION.NAME)
       .label("Middle Name")
-      .optional(),
+      .optional()
+      .allow(""),
     lName: Joi.string()
       .pattern(REGULAR_EXPRESSION.NAME)
       .label("Last Name")
@@ -41,6 +42,7 @@ module.exports.validatePassword = {
 module.exports.validateStaffID = {
   schema: Joi.object({
     id: Joi.number().required(),
+    notifParamsId: Joi.string().required(),
   }),
   location: "params",
 };

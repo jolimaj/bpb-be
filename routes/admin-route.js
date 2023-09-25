@@ -11,19 +11,35 @@ const {
 const {
   NotificationService,
 } = require("../common/service/notification-service");
-const businesspermit = require("../db/models/businesspermit");
 
 const usersController = new UsersController();
 const departmentsController = new DepartmentsModule();
 const businessPermitController = new BusinessPermitService();
 
 router.post("/staff", mw.validateStaff, async (req, res) => {
-  console.log("🚀 ~ file: admin-route.js:16 ~ router.post ~ req:", req);
   try {
     const { body, sessionStore } = req;
     const session = sessionStore.sessions;
     if (Object.keys(session).length > 0) {
       const data = await usersController.addStaff(body);
+      return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
+    }
+
+    return res.error(
+      400,
+      responseCodes.LOGIN_FIRST,
+      responseMessage.LOGIN_FIRST
+    );
+  } catch (e) {
+    return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+  }
+});
+router.post("/staff/reinvite", async (req, res) => {
+  try {
+    const { body, sessionStore } = req;
+    const session = sessionStore.sessions;
+    if (Object.keys(session).length > 0) {
+      const data = await usersController.reinviteStaff(body.id);
       return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
     }
 
@@ -94,6 +110,21 @@ router.get("/departments", async (req, res) => {
       session?.email
     );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
+  }
+
+  return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
+});
+
+router.put("/departments/:departmentID", async (req, res) => {
+  const { body, params, sessionStore } = req;
+  const session = sessionStore.sessions;
+
+  if (Object.keys(session).length > 0) {
+    const data = await usersController.updateDepartments({
+      departmentID: params.departmentID,
+      id: body.userID,
+    });
+    return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
   }
 
   return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);

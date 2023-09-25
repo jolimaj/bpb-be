@@ -30,12 +30,8 @@ class NotificationService {
     });
   }
 
-  sendEmailNotification(payload, type, fName) {
-    const requestBody = this.#notificationMapper.emailMapper(
-      payload,
-      type,
-      fName
-    );
+  sendEmailNotification(payload, type) {
+    const requestBody = this.#notificationMapper.emailMapper(payload, type);
     return this.#transporter.sendMail(requestBody);
   }
 
@@ -44,10 +40,7 @@ class NotificationService {
       const requestBody = this.#notificationMapper.smsMapper(payload);
       return await this.#vonage.sms.send(requestBody);
     } catch (error) {
-      console.log(
-        "🚀 ~ file: notification-service.js:43 ~ NotificationService ~ sendSMSNotification ~ error:",
-        error
-      );
+      return error;
     }
   }
 }

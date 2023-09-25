@@ -28,6 +28,7 @@ class BusinessPermitService {
   #bfpForm;
   #userData;
   #requirement;
+  #departments;
 
   constructor() {
     this.#mapper = new BusinessPermitMapper();
@@ -38,6 +39,7 @@ class BusinessPermitService {
     this.#bfpForm = BFPForm;
     this.#userData = new UsersController();
     this.#requirement = Requirements;
+    this.#departments = Departments;
   }
 
   async applyBusinessPermit(payload, email) {
@@ -193,6 +195,12 @@ class BusinessPermitService {
             },
             limit: query?.limit ?? 10,
           };
+      const departmentData = await this.#departments.findOne({
+        where: {
+          id: departmentID,
+        },
+        raw: true,
+      });
 
       const results = await this.#model.findAll({
         ...queries,
@@ -205,11 +213,13 @@ class BusinessPermitService {
         ],
         order: [["id", "DESC"]],
       });
-      return results;
+
+      return { results, departmentData };
     } catch (error) {
       return error;
     }
   }
+
   async getBusinessPermitsByUserOnly(userID) {
     try {
       const results = await this.#model.findOne({

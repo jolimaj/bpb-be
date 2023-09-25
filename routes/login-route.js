@@ -13,7 +13,6 @@ router.post("/sign-in", mw.validateLogin, async (req, res) => {
     session.password = body.password;
     return res.success(200, responseCodes.LOGIN_SUCCESS, { data, session });
   } catch (e) {
-    console.log("🚀 ~ file: login-route.js:16 ~ router.post ~ e:", e);
     return res.error(400, responseCodes.LOGIN_FAILED, e);
   }
 });
@@ -27,15 +26,16 @@ router.post("/sign-up", mw.validateRegister, async (req, res) => {
   }
 });
 
-router.put("/sign-in/:id", async (req, res) => {
+router.put("/sign-in/:id/:notifParamsId", async (req, res) => {
   try {
-    const data = await usersController.userActivate(req.params.id);
+    const { id, notifParamsId } = req.params;
+    const data = await usersController.userActivate(id, notifParamsId);
     return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
   } catch (e) {
     return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
   }
 });
-router.post("/sign-in/forgotPassword", mw.validateEmail, async (req, res) => {
+router.put("/sign-in/forgotPassword", mw.validateEmail, async (req, res) => {
   try {
     const data = await usersController.forgotPassword(req.body);
     return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);

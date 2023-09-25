@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
+const uuid = require("uuid").v4;
 const { responseMessage } = require("../../common/response/code");
-const { User, Departments } = require("../../db/models/index");
+const { User, Departments, NotifParams } = require("../../db/models/index");
 const { NOTIF_TYPE } = require("../../common/constant/notification-constant");
 
 const { UserMapper } = require("../../common/mappers/user-mapper");
@@ -11,19 +12,25 @@ const {
 const { SecurePassword } = require("../../helpers/password/secure-password");
 
 const { DepartmentsModule } = require("../departments/controller");
+const { NotificationController } = require("../notifcation/controller");
+
 class UsersController {
   #model;
   #mapper;
   #notifService;
   #securePassword;
   #departmentModule;
+  #notifModules;
+  #notifParams;
 
   constructor() {
     this.#model = User;
+    this.#notifParams = NotifParams;
     this.#mapper = new UserMapper();
     this.#notifService = new NotificationService();
     this.#securePassword = new SecurePassword();
     this.#departmentModule = new DepartmentsModule();
+    this.#notifModules = new NotificationController();
   }
   async getUserByID(email) {
     try {
@@ -91,8 +98,15 @@ class UsersController {
       return error;
     }
   }
-  async userActivate(id) {
+  async userActivate(id, notifParamsId) {
     try {
+      const checkExpiry = await this.#notifParams.findOne({
+        where: { paramsNumber: notifParamsId },
+        raw: true,
+      });
+      if (new Date(checkExpiry.createdAt).getDate() < new Date().getDate()) {
+        return Promise.reject(responseMessage.URL_EXPIRE_MESSAGE);
+      }
       return await this.#model.update(
         { isActive: true },
         {
@@ -102,11 +116,18 @@ class UsersController {
         }
       );
     } catch (error) {
-      retur;
+      return error;
     }
   }
-  async addPassword(id, password) {
+  async addPassword(id, notifParamsId, password) {
     try {
+      const checkExpiry = await this.#notifParams.findOne({
+        where: { paramsNumber: notifParamsId },
+        raw: true,
+      });
+      if (new Date(checkExpiry.createdAt).getDate() < new Date().getDate()) {
+        return Promise.reject(responseMessage.URL_EXPIRE_MESSAGE);
+      }
       const request = this.#mapper.createStaffPassword({ password });
 
       return await this.#model.update(request, {
@@ -128,8 +149,13 @@ class UsersController {
       if (!emailData) {
         return Promise.reject(responseMessage.INVALID_EMAIL);
       }
+      const notifData = await this.#notifModules.addQueryParams(emailData.id);
       this.#notifService.sendEmailNotification(
-        { ...payload, id: emailData.id },
+        {
+          ...payload,
+          id: emailData.id,
+          notifParamsId: notifData.dataValues.paramsNumber,
+        },
         NOTIF_TYPE.PASSWORD_RESET
       );
     } catch (error) {
@@ -166,12 +192,37 @@ class UsersController {
       }
 
       await this.#departmentModule.updateDepartments(result?.dataValues);
+      const notifData = await this.#notifModules.addQueryParams(
+        result.dataValues.id
+      );
+
       this.#notifService.sendEmailNotification(
-        result,
+        {
+          ...result.dataValues,
+          notifParamsId: notifData.dataValues.paramsNumber,
+        },
         NOTIF_TYPE.NEW_STAFF,
         payload?.fName
       );
       return result;
+    } catch (error) {
+      return error;
+    }
+  }
+  async reinviteStaff(id) {
+    try {
+      const result = await this.#model.findOne({ where: { id }, raw: true });
+
+      const notifData = await this.#notifModules.addQueryParams(id);
+
+      this.#notifService.sendEmailNotification(
+        {
+          ...result.dataValues,
+          notifParamsId: notifData.dataValues.paramsNumber,
+        },
+        NOTIF_TYPE.NEW_STAFF
+      );
+      return notifData;
     } catch (error) {
       return error;
     }
@@ -189,11 +240,15 @@ class UsersController {
       if (!created) {
         return Promise.reject(responseMessage.EMAIL_ALREADY_TAKEN);
       }
-
-      this.#notifService.sendEmailNotification(
-        result,
-        NOTIF_TYPE.UPON_CREATION,
-        payload?.fName
+      const notifData = await this.#notifModules.addQueryParams(
+        result.dataValues.id
+      );
+      await this.#notifService.sendEmailNotification(
+        {
+          ...result.dataValues,
+          notifParamsId: notifData.dataValues.paramsNumber,
+        },
+        NOTIF_TYPE.UPON_CREATION
       );
       return result;
     } catch (error) {
@@ -220,6 +275,23 @@ class UsersController {
         return Promise.reject(responseMessage.INVALID_PASSWORD);
       }
       return emailData;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  updateDepartments(payload) {
+    const { departmentID, id } = payload;
+    try {
+      return this.#model.update(
+        { departmentID },
+        {
+          where: {
+            id,
+          },
+          raw: true,
+        }
+      );
     } catch (error) {
       return error;
     }

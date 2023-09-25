@@ -179,11 +179,14 @@ class BusinessPermitService {
         types === "new" ? APPLICATION_TYPES.NEW : APPLICATION_TYPES.RENEW;
       const { departmentID } = await this.#userData.getUserByID(email);
 
-      const queries = query?.id
+      const queries = query?.searhQuery
         ? {
             where: {
               assignedToDepartmentID: departmentID,
-              id: query?.id,
+              [Op.or]: [
+                { id: query?.searhQuery },
+                { lastName: query?.searhQuery },
+              ],
               type,
             },
             limit: query?.limit ?? 10,
@@ -317,6 +320,39 @@ class BusinessPermitService {
       signatureBPLO,
     };
   }
+  #rejectNewPermit(payload) {
+    let assignedToDepartmentID,
+      status = 0;
+    switch (payload?.assignedToDepartmentID) {
+      case DEPARTMENT_ID.MPDC:
+        assignedToDepartmentID = DEPARTMENT_ID.MTO;
+        break;
+      case DEPARTMENT_ID.MTO:
+        if (payload?.approvedByMTO1) {
+          assignedToDepartmentID = DEPARTMENT_ID.MENRO;
+        }
+        assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
+        break;
+      case DEPARTMENT_ID.SANIDAD:
+        assignedToDepartmentID = DEPARTMENT_ID.MEO;
+        break;
+      case DEPARTMENT_ID.MEO:
+        assignedToDepartmentID = DEPARTMENT_ID.MTO;
+        break;
+      case DEPARTMENT_ID.MENRO:
+        assignedToDepartmentID = DEPARTMENT_ID.BFP;
+        break;
+      case DEPARTMENT_ID.BFP:
+        assignedToDepartmentID = DEPARTMENT_ID.BPLO;
+        signatureBFP = body?.signatureBFP;
+        break;
+      case DEPARTMENT_ID.BPLO:
+        status = -1;
+        break;
+    }
+    console.log(assignedToDepartmentID);
+    return { assignedToDepartmentID, status };
+  }
   #assigneeRenewalPermit(assignee, payload, body) {
     let assignedToDepartmentID;
     let approvedByMTO1,
@@ -367,6 +403,32 @@ class BusinessPermitService {
       signatureBPLO,
     };
   }
+  #rejectRenewalPermit(payload) {
+    let assignedToDepartmentID,
+      status = 0;
+    switch (payload?.assignedToDepartmentID) {
+      case DEPARTMENT_ID.BPLO:
+        if (payload.approvedByBPLO1) {
+          assignedToDepartmentID = DEPARTMENT_ID.MTO;
+        }
+        assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
+        break;
+      case DEPARTMENT_ID.SANIDAD:
+        assignedToDepartmentID = DEPARTMENT_ID.BPLO;
+        break;
+      case DEPARTMENT_ID.MTO:
+        assignedToDepartmentID = DEPARTMENT_ID.BFP;
+        break;
+      case DEPARTMENT_ID.BFP:
+        assignedToDepartmentID = DEPARTMENT_ID.BPLO;
+        status = -1;
+        break;
+    }
+    return {
+      assignedToDepartmentID,
+      status,
+    };
+  }
   async #reviewByType(type, assignee, payload, body) {
     let action;
     switch (type) {
@@ -405,19 +467,11 @@ class BusinessPermitService {
 
     try {
       const payload = await this.#reviewSignature(files, keyName);
-      console.log(
-        "🚀 ~ file: controller.js:399 ~ BusinessPermitService ~ reviewPermit ~ payload:",
-        payload
-      );
       const reviewed = await this.#reviewByType(
         dataValues?.type,
         dataValues?.assignedToDepartmentID,
         dataValues,
         payload
-      );
-      console.log(
-        "🚀 ~ file: controller.js:409 ~ BusinessPermitService ~ reviewPermit ~ reviewed:",
-        reviewed
       );
       const result = await this.#model.update(reviewed, {
         where: { id },
@@ -428,6 +482,27 @@ class BusinessPermitService {
       return error;
     }
   }
+
+  async disapproveRequest(id, payload) {
+    try {
+      delete payload?.result;
+      // remarks add to sms
+      const { dataValues } = await this.getBusinessPermitByID(id);
+      const requestData =
+        dataValues?.type === 1
+          ? this.#rejectNewPermit(dataValues)
+          : this.#rejectRenewalPermit(dataValues);
+
+      const result = await this.#model.update(requestData, {
+        where: { id },
+        plain: true,
+      });
+      return result;
+    } catch (error) {
+      return error;
+    }
+  }
+
   async countData(query) {
     try {
       const TODAY_START = new Date().setHours(0, 0, 0, 0);

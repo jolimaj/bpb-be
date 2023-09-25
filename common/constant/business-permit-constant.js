@@ -1,6 +1,6 @@
 const APPLICATION_TYPES = {
-  NEW: 1,
-  RENEW: 2,
+  NEW: "1",
+  RENEW: "2",
 };
 
 const DEPARTMENT_ID = {

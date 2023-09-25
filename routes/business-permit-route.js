@@ -28,8 +28,10 @@ router.put(
   upload.any("requirements"),
   async (req, res) => {
     try {
-      const { params, session, files } = req;
-      if (session?.email && session?.password) {
+      const { params, files, sessionStore, session } = req;
+
+      const sessionKey = sessionStore?.sessions ?? session;
+      if (Object.keys(sessionKey).length > 0) {
         const imageUrlList = [];
         const keyName = [];
 
@@ -63,11 +65,14 @@ router.put(
 
 router.get("/services/requirements", async (req, res) => {
   try {
-    const { session } = req;
-    if (session?.email && session?.password) {
+    const { sessionStore, session } = req;
+
+    const sessionKey = sessionStore?.sessions ?? session;
+    if (Object.keys(sessionKey).length > 0) {
       const data =
         await requirementsController.getRequirementsByBusinessPermitID(
-          session?.email
+          sessionKey?.email ??
+            JSON.parse(sessionKey[Object.keys(sessionKey)])?.email
         );
       return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
     }
@@ -89,15 +94,18 @@ router.post(
   mw.validatePermit,
   async (req, res) => {
     try {
-      const { body, session, file } = req;
-      if (session?.email && session?.password) {
+      const { body, file, sessionStore, session } = req;
+
+      const sessionKey = sessionStore?.sessions ?? session;
+      if (Object.keys(sessionKey).length > 0) {
         body.applicantSignature = await uploaderService.uploadFiles(
           file,
           "applicantSignature"
         );
         const data = await businessPermit.applyBusinessPermit(
           body,
-          session?.email
+          sessionKey?.email ??
+            JSON.parse(sessionKey[Object.keys(sessionKey)])?.email
         );
         return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
       }
@@ -115,8 +123,10 @@ router.post(
 
 router.get("/services/businessPermit/:userID/:id", async (req, res) => {
   try {
-    const { params, session } = req;
-    if (session?.email && session?.password) {
+    const { params, sessionStore, session } = req;
+
+    const sessionKey = sessionStore?.sessions ?? session;
+    if (Object.keys(sessionKey).length > 0) {
       const data = await businessPermit.getBusinessPermitByUser(
         params?.userID,
         params?.id
@@ -153,9 +163,10 @@ router.put(
   }
 );
 router.get("/departments", async (req, res) => {
-  const { query, sessionStore } = req;
-  const session = sessionStore.sessions;
-  if (Object.keys(session).length > 0) {
+  const { query, sessionStore, session } = req;
+
+  const sessionKey = sessionStore?.sessions ?? session;
+  if (Object.keys(sessionKey).length > 0) {
     const data = await departmentController.getDepartments(query);
 
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
@@ -175,12 +186,23 @@ router.get("/departments", async (req, res) => {
 //   return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 // });
 router.get("/departments/businessPermit/new", async (req, res) => {
-  const { query, sessionStore } = req;
-  const session = sessionStore.sessions;
-  if (Object.keys(session).length > 0) {
+  const { query, sessionStore, session } = req;
+  console.log(
+    "🚀 ~ file: business-permit-route.js:188 ~ router.get ~ sessionStore, session:",
+    sessionStore,
+    session
+  );
+
+  const sessionKey = sessionStore?.sessions ?? session;
+  if (Object.keys(sessionKey).length > 0) {
+    console.log(
+      "🚀 ~ file: business-permit-route.js:198 ~ router.get ~ sessionKey:",
+      JSON.parse(sessionKey[Object.keys(sessionKey)])?.email
+    );
     const data = await businessPermit.getBusinessPermits(
       query,
-      JSON.parse(session[Object.keys(session)])?.email,
+      sessionKey?.email ??
+        JSON.parse(sessionKey[Object.keys(sessionKey)])?.email,
       "new"
     );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
@@ -189,12 +211,14 @@ router.get("/departments/businessPermit/new", async (req, res) => {
   return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 });
 router.get("/departments/businessPermit/renew", async (req, res) => {
-  const { query, sessionStore } = req;
-  const session = sessionStore.sessions;
-  if (Object.keys(session).length > 0) {
+  const { query, sessionStore, session } = req;
+
+  const sessionKey = sessionStore?.sessions ?? session;
+  if (Object.keys(sessionKey).length > 0) {
     const data = await businessPermit.getBusinessPermits(
       query,
-      JSON.parse(session[Object.keys(session)])?.email,
+      sessionKey?.email ??
+        JSON.parse(sessionKey[Object.keys(sessionKey)])?.email,
       "renew"
     );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
@@ -209,23 +233,23 @@ router.put(
   upload.any("file"),
   async (req, res) => {
     try {
-      const { params, session, files } = req;
+      const { params, body, files, sessionStore, session } = req;
 
-      if (session?.email && session?.password) {
-        const body = await uploaderService.uploadFiles(
-          files[0],
-          files[0].fieldname
-        );
-        // body.applicantSignature = await uploaderService.uploadFiles(
-        //   file,
-        //   "applicantSignature"
-        // );
-        const data = await businessPermit.reviewPermit(
-          params.id,
-          body,
-          files[0].fieldname
-        );
-
+      const sessionKey = sessionStore?.sessions ?? session;
+      if (Object.keys(sessionKey).length > 0) {
+        let data;
+        if (body?.result === "approve") {
+          const request = await uploaderService.uploadFiles(
+            files[0],
+            files[0].fieldname
+          );
+          data = await businessPermit.reviewPermit(
+            params.id,
+            request,
+            files[0].fieldname
+          );
+        }
+        data = await businessPermit.disapproveRequest(params.id, body);
         return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
       }
 

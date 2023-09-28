@@ -10,28 +10,20 @@ const { okResp, errResp } = require("./helpers/response/response-helper");
 const app = express();
 app.use(bodyParser.json());
 
-//session middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(
   sessions({
-    secret: "keyboard cat",
-    resave: false,
+    secret: "qwerqwerqwer",
+    resave: true,
     saveUninitialized: true,
-    proxy: true, // Required for Heroku & Digital Ocean (regarding X-Forwarded-For)
-    name: "MyCoolWebAppCookieName", // This needs to be unique per-host.
     cookie: {
-      secure: true, // required for cookies to work on HTTPS
-      httpOnly: false,
-      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
     },
   })
 );
-
-app.use(cookieParser());
-
-app.use(cors());
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   res.success = (status, responseCodes, data) => {

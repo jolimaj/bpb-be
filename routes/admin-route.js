@@ -18,10 +18,9 @@ const businessPermitController = new BusinessPermitService();
 
 router.post("/staff", mw.validateStaff, async (req, res) => {
   try {
-    const { body, sessionStore, session } = req;
-    const sessionKey = sessionStore?.sessions ?? session;
+    const { body, session } = req;
 
-    if (Object.keys(sessionKey).length > 0) {
+    if (session?.email && session?.password) {
       const data = await usersController.addStaff(body);
       return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
     }
@@ -37,10 +36,9 @@ router.post("/staff", mw.validateStaff, async (req, res) => {
 });
 router.post("/staff/reinvite", async (req, res) => {
   try {
-    const { body, sessionStore, session } = req;
-    const sessionKey = sessionStore?.sessions ?? session;
+    const { body, session } = req;
 
-    if (Object.keys(sessionKey).length > 0) {
+    if (session?.email && session?.password) {
       const data = await usersController.reinviteStaff(body.id);
       return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
     }
@@ -56,13 +54,17 @@ router.post("/staff/reinvite", async (req, res) => {
 });
 
 router.get("/staff", async (req, res) => {
-  const { query, sessionStore, session } = req;
-  const sessionKey = sessionStore?.sessions ?? session;
-  if (Object.keys(sessionKey).length > 0) {
+  console.log(
+    "🚀 ~ file: admin-route.js:59 ~ router.get ~ req:",
+    req.session?.email
+  );
+  const { query, session } = req;
+
+  if (session?.email && session?.password) {
     const data = await usersController.getAllStaff(
       query,
-      sessionKey?.email ??
-        JSON.parse(sessionKey[Object.keys(sessionKey)])?.email
+
+      session?.email
     );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   }
@@ -71,14 +73,13 @@ router.get("/staff", async (req, res) => {
 });
 
 router.get("/users", async (req, res) => {
-  const { query, sessionStore, session } = req;
+  const { query, session } = req;
 
-  const sessionKey = sessionStore?.sessions ?? session;
-  if (Object.keys(sessionKey).length > 0) {
+  if (session?.email && session?.password) {
     const data = await usersController.getAll(
       query,
-      sessionKey?.email ??
-        JSON.parse(sessionKey[Object.keys(sessionKey)])?.email
+
+      session?.email
     );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   }
@@ -109,14 +110,13 @@ router.post(
 );
 
 router.get("/departments", async (req, res) => {
-  const { query, sessionStore, session } = req;
-  const sessionKey = sessionStore?.sessions ?? session;
+  const { query, session } = req;
 
-  if (Object.keys(sessionKey).length > 0) {
+  if (session?.email && session?.password) {
     const data = await departmentsController.getDepartments(
       query,
-      sessionKey?.email ??
-        JSON.parse(sessionKey[Object.keys(sessionKey)])?.email
+
+      session?.email
     );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   }
@@ -125,10 +125,9 @@ router.get("/departments", async (req, res) => {
 });
 
 router.put("/departments/:departmentID", async (req, res) => {
-  const { body, params, sessionStore, session } = req;
-  const sessionKey = sessionStore?.sessions ?? session;
+  const { body, params, session } = req;
 
-  if (Object.keys(sessionKey).length > 0) {
+  if (session?.email && session?.password) {
     const data = await usersController.updateDepartments({
       departmentID: params.departmentID,
       id: body.userID,
@@ -140,10 +139,9 @@ router.put("/departments/:departmentID", async (req, res) => {
 });
 
 router.get("/dashboard", async (req, res) => {
-  const { query, sessionStore, session } = req;
+  const { query, session } = req;
 
-  const sessionKey = sessionStore?.sessions ?? session;
-  if (Object.keys(sessionKey).length > 0) {
+  if (session?.email && session?.password) {
     const data = await businessPermitController.countData(query);
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   }

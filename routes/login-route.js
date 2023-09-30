@@ -7,11 +7,12 @@ const usersController = new UsersController();
 
 router.post("/sign-in", mw.validateLogin, async (req, res) => {
   try {
-    const { body, session } = req;
+    const { body } = req;
     const data = await usersController.loginUser(body);
-    session.email = body.email;
-    session.password = body.password;
-    return res.success(200, responseCodes.LOGIN_SUCCESS, { data, session });
+    req.session.email = body.email;
+    req.session.password = body.password;
+    req.session.save();
+    return res.success(200, responseCodes.LOGIN_SUCCESS, data);
   } catch (e) {
     return res.error(400, responseCodes.LOGIN_FAILED, e);
   }

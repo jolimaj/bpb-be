@@ -111,6 +111,7 @@ router.post(
 
 router.get("/departments", async (req, res) => {
   const { query, session } = req;
+  console.log("🚀 ~ file: admin-route.js:114 ~ router.get ~ session:", session);
 
   if (session?.email && session?.password) {
     const data = await departmentsController.getDepartments(

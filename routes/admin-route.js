@@ -148,6 +148,6 @@ router.get("/dashboard", async (req, res) => {
   return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   // }
 
-  return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
+  // return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 });
 module.exports = router;

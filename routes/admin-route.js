@@ -140,12 +140,13 @@ router.put("/departments/:departmentID", async (req, res) => {
 });
 
 router.get("/dashboard", async (req, res) => {
+  console.log("🚀 ~ file: admin-route.js:143 ~ router.get ~ req:", req);
   const { query, session } = req;
 
-  if (session?.email && session?.password) {
-    const data = await businessPermitController.countData(query);
-    return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
-  }
+  // if (session?.email && session?.password) {
+  const data = await businessPermitController.countData(query);
+  return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
+  // }
 
   return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 });

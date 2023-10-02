@@ -11,7 +11,12 @@ const { okResp, errResp } = require("./helpers/response/response-helper");
 const app = express();
 app.use(bodyParser.json());
 
-app.use(cors({ credentials: true, origin: process.env.MAIN_URL }));
+app.use(
+  cors({
+    credentials: true,
+    origin: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

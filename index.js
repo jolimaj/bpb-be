@@ -23,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   session({
+    proxy: true,
     secret: "BPB",
     resave: false,
     saveUninitialized: true,

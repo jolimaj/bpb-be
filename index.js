@@ -26,14 +26,17 @@ app.use(
     proxy: true,
     secret: "BPB",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       secure: false,
       maxAge: 60000,
     },
   })
 );
-
+// if (process.env.NODE_ENV === "production") {
+app.set("trust proxy", 1);
+//   sess.cookie.secure = true;
+// }
 app.use((req, res, next) => {
   res.success = (status, responseCodes, data) => {
     const output = okResp(status, responseCodes, data);

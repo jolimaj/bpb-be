@@ -168,7 +168,7 @@ class UsersController {
         return Promise.reject(responseMessage.INVALID_EMAIL);
       }
       const notifData = await this.#notifModules.addQueryParams(emailData.id);
-      this.#notifService.sendEmailNotification(
+      await this.#notifService.sendEmailNotification(
         {
           ...payload,
           id: emailData.id,
@@ -214,7 +214,7 @@ class UsersController {
         result.dataValues.id
       );
 
-      this.#notifService.sendEmailNotification(
+      await this.#notifService.sendEmailNotification(
         {
           ...result.dataValues,
           notifParamsId: notifData.dataValues.paramsNumber,
@@ -233,7 +233,7 @@ class UsersController {
 
       const notifData = await this.#notifModules.addQueryParams(id);
 
-      this.#notifService.sendEmailNotification(
+      await this.#notifService.sendEmailNotification(
         {
           ...result.dataValues,
           notifParamsId: notifData.dataValues.paramsNumber,
@@ -261,7 +261,7 @@ class UsersController {
       const notifData = await this.#notifModules.addQueryParams(
         result.dataValues.id
       );
-      await this.#notifService.sendEmailNotification(
+      await await this.#notifService.sendEmailNotification(
         {
           ...result.dataValues,
           notifParamsId: notifData.dataValues.paramsNumber,

@@ -244,4 +244,45 @@ router.put(
   }
 );
 
+router.put("/departments/profile", async (req, res) => {
+  try {
+    const { session, body } = req;
+    if (session?.email && session?.password) {
+      const data = await usersController.updateUserData(
+        session?.email,
+        body.mobile
+      );
+      return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+    }
+
+    return res.error(
+      400,
+      responseCodes.LOGIN_FIRST,
+      responseMessage.LOGIN_FIRST
+    );
+  } catch (e) {
+    return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+  }
+});
+
+router.put("/profile", async (req, res) => {
+  try {
+    const { session, body } = req;
+    if (session?.email && session?.password) {
+      const data = await usersController.updateUserData(
+        session?.email,
+        body.mobile
+      );
+      return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+    }
+
+    return res.error(
+      400,
+      responseCodes.LOGIN_FIRST,
+      responseMessage.LOGIN_FIRST
+    );
+  } catch (e) {
+    return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+  }
+});
 module.exports = router;

@@ -39,6 +39,24 @@ class UsersController {
       return error;
     }
   }
+
+  async updateUserData(email, mobile) {
+    try {
+      const data = await this.#model.findOne({ where: { email }, raw: true });
+      return this.#model.update(
+        { mobile },
+        {
+          where: {
+            id: data.id,
+          },
+          raw: true,
+        }
+      );
+    } catch (error) {
+      return error;
+    }
+  }
+
   async getAllStaff(query, email) {
     try {
       const queries =
@@ -278,6 +296,10 @@ class UsersController {
     } catch (error) {
       return error;
     }
+  }
+
+  async logoutUser() {
+    return "Logout";
   }
 
   updateDepartments(payload) {

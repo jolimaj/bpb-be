@@ -16,6 +16,37 @@ const usersController = new UsersController();
 const departmentsController = new DepartmentsModule();
 const businessPermitController = new BusinessPermitService();
 
+router.get("/profile", async (req, res) => {
+  const { session } = req;
+  if (session?.email && session?.password) {
+    const data = await usersController.getUserByID(session?.email);
+    return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
+  }
+
+  return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
+});
+
+router.put("/profile", async (req, res) => {
+  try {
+    const { session, body } = req;
+    if (session?.email && session?.password) {
+      const data = await usersController.updateUserData(
+        session?.email,
+        body.mobile
+      );
+      return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+    }
+
+    return res.error(
+      400,
+      responseCodes.LOGIN_FIRST,
+      responseMessage.LOGIN_FIRST
+    );
+  } catch (e) {
+    return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+  }
+});
+
 router.post("/staff", mw.validateStaff, async (req, res) => {
   try {
     const { body, session } = req;
@@ -54,18 +85,10 @@ router.post("/staff/reinvite", async (req, res) => {
 });
 
 router.get("/staff", async (req, res) => {
-  console.log(
-    "🚀 ~ file: admin-route.js:59 ~ router.get ~ req:",
-    req.session?.email
-  );
   const { query, session } = req;
 
   if (session?.email && session?.password) {
-    const data = await usersController.getAllStaff(
-      query,
-
-      session?.email
-    );
+    const data = await usersController.getAllStaff(query, session?.email);
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   }
 
@@ -111,7 +134,6 @@ router.post(
 
 router.get("/departments", async (req, res) => {
   const { query, session } = req;
-  console.log("🚀 ~ file: admin-route.js:114 ~ router.get ~ session:", session);
 
   if (session?.email && session?.password) {
     const data = await departmentsController.getDepartments(
@@ -140,14 +162,13 @@ router.put("/departments/:departmentID", async (req, res) => {
 });
 
 router.get("/dashboard", async (req, res) => {
-  console.log("🚀 ~ file: admin-route.js:143 ~ router.get ~ req:", req);
   const { query, session } = req;
 
-  // if (session?.email && session?.password) {
-  const data = await businessPermitController.countData(query);
-  return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
-  // }
+  if (session?.email && session?.password) {
+    const data = await businessPermitController.countData(query);
+    return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
+  }
 
-  // return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
+  return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
 });
 module.exports = router;

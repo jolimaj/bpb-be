@@ -1,6 +1,6 @@
 const REGULAR_EXPRESSION = {
   MOBILE: /^(09|\+639)\d{9}$/,
-  PASSWORD: /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^\w\s]).{8,}$/,
+  PASSWORD: /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
   NAME: /^[A-Za-z]+$/,
 };
 // At least 8 characters long

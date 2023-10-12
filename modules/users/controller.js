@@ -1,5 +1,4 @@
 const { Op } = require("sequelize");
-const uuid = require("uuid").v4;
 const { responseMessage } = require("../../common/response/code");
 const { User, Departments, NotifParams } = require("../../db/models/index");
 const { NOTIF_TYPE } = require("../../common/constant/notification-constant");
@@ -94,8 +93,9 @@ class UsersController {
         Object.keys(query).length > 0
           ? {
               where: {
-                firstName: query?.firstName,
-                roleID: query?.roleID,
+                firstName: {
+                  [Op.like]: "%{abc@gmail.com}%",
+                },
                 email: {
                   [Op.ne]: email,
                 },
@@ -104,7 +104,6 @@ class UsersController {
             }
           : {
               where: {
-                roleID: query?.roleID,
                 email: {
                   [Op.ne]: email,
                 },
@@ -118,13 +117,6 @@ class UsersController {
   }
   async userActivate(id, notifParamsId) {
     try {
-      const checkExpiry = await this.#notifParams.findOne({
-        where: { paramsNumber: notifParamsId },
-        raw: true,
-      });
-      if (new Date(checkExpiry.createdAt).getDate() < new Date().getDate()) {
-        return Promise.reject(responseMessage.URL_EXPIRE_MESSAGE);
-      }
       return await this.#model.update(
         { isActive: true },
         {
@@ -137,25 +129,31 @@ class UsersController {
       return error;
     }
   }
-  async addPassword(id, notifParamsId, password) {
+  async addPassword(id, password) {
+    const request = this.#mapper.createStaffPassword({ password });
     try {
-      const checkExpiry = await this.#notifParams.findOne({
-        where: { paramsNumber: notifParamsId },
-        raw: true,
-      });
-      if (new Date(checkExpiry.createdAt).getDate() < new Date().getDate()) {
-        return Promise.reject(responseMessage.URL_EXPIRE_MESSAGE);
-      }
-      const request = this.#mapper.createStaffPassword({ password });
-
-      return await this.#model.update(request, {
+      const result = await this.#model.update(request, {
         where: {
           id,
         },
         raw: true,
+        plain: true,
+        returning: true,
       });
+
+      await this.#notifService.sendEmailNotification(
+        {
+          ...result.find(Boolean),
+        },
+        NOTIF_TYPE.PASSWORD_RESET_SUCCESS
+      );
+      return result;
     } catch (error) {
-      retur;
+      console.log(
+        "🚀 ~ file: controller.js:155 ~ UsersController ~ addPassword ~ error:",
+        error
+      );
+      return error;
     }
   }
   async forgotPassword(payload) {
@@ -167,7 +165,10 @@ class UsersController {
       if (!emailData) {
         return Promise.reject(responseMessage.INVALID_EMAIL);
       }
-      const notifData = await this.#notifModules.addQueryParams(emailData.id);
+
+      const notifData = await this.#notifModules.updateQueryParams(
+        emailData.id
+      );
       await this.#notifService.sendEmailNotification(
         {
           ...payload,
@@ -177,7 +178,7 @@ class UsersController {
         NOTIF_TYPE.PASSWORD_RESET
       );
     } catch (error) {
-      retur;
+      return error;
     }
   }
   async uploadImage(id) {
@@ -230,12 +231,13 @@ class UsersController {
   async reinviteStaff(id) {
     try {
       const result = await this.#model.findOne({ where: { id }, raw: true });
-
-      const notifData = await this.#notifModules.addQueryParams(id);
-
+      const notifData = await this.#notifModules.updateQueryParams(id);
+      if (!notifData) {
+        return Promise.reject(responseMessage.URL_EXPIRE_MESSAGE);
+      }
       await this.#notifService.sendEmailNotification(
         {
-          ...result.dataValues,
+          ...result,
           notifParamsId: notifData.dataValues.paramsNumber,
         },
         NOTIF_TYPE.NEW_STAFF
@@ -273,6 +275,7 @@ class UsersController {
       return error;
     }
   }
+
   async loginUser(payload) {
     try {
       const emailData = await this.#model.findOne({

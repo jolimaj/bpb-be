@@ -99,11 +99,7 @@ router.get("/users", async (req, res) => {
   const { query, session } = req;
 
   if (session?.email && session?.password) {
-    const data = await usersController.getAll(
-      query,
-
-      session?.email
-    );
+    const data = await usersController.getAll(query, session?.email);
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
   }
 

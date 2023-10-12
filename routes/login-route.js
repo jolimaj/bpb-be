@@ -4,6 +4,19 @@ const mw = require("../validation/middleware");
 const { UsersController } = require("../modules/users/controller");
 
 const usersController = new UsersController();
+const { NotificationController } = require("../modules/notifcation/controller");
+
+const notifParamsController = new NotificationController();
+
+router.get("/notifParams/:uuid", async (req, res) => {
+  try {
+    const { params } = req;
+    const data = await notifParamsController.getQueryParams(params?.uuid);
+    return res.success(200, responseCodes.NOTIF_SUCCESS, data);
+  } catch (e) {
+    return res.error(400, responseCodes.NOTIF_FAILED, e);
+  }
+});
 
 router.post("/sign-in", mw.validateLogin, async (req, res) => {
   try {
@@ -24,13 +37,8 @@ router.post("/sign-out", async (req, res) => {
     delete req.session;
 
     const data = await usersController.logoutUser();
-    console.log(
-      "🚀 ~ file: login-route.js:27 ~ router.post ~ data:",
-      req.session
-    );
     return res.success(200, responseCodes.LOGOUT_SUCCESS, data);
   } catch (e) {
-    console.log("🚀 ~ file: login-route.js:30 ~ router.post ~ e:", e);
     return res.error(400, responseCodes.LOGOUT_FAILED, e);
   }
 });
@@ -44,7 +52,7 @@ router.post("/sign-up", mw.validateRegister, async (req, res) => {
   }
 });
 
-router.put("/sign-in/:id/:notifParamsId", async (req, res) => {
+router.put("/sign-in/activate/:id", async (req, res) => {
   try {
     const { id, notifParamsId } = req.params;
     const data = await usersController.userActivate(id, notifParamsId);
@@ -61,4 +69,19 @@ router.put("/sign-in/forgotPassword", mw.validateEmail, async (req, res) => {
     return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
   }
 });
+router.patch(
+  "/sign-in/forgotPassword/:id",
+  mw.validatePassword,
+  async (req, res) => {
+    try {
+      const data = await usersController.addPassword(
+        req.params.id,
+        req.body.password
+      );
+      return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+    } catch (e) {
+      return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
+    }
+  }
+);
 module.exports = router;

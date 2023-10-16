@@ -115,15 +115,12 @@ router.post(
   }
 );
 
-router.get("/services/businessPermit/:userID/:id", async (req, res) => {
+router.get("/services/businessPermit", async (req, res) => {
   try {
-    const { params, session } = req;
+    const { session } = req;
 
     if (session?.email && session?.password) {
-      const data = await businessPermit.getBusinessPermitByUser(
-        params?.userID,
-        params?.id
-      );
+      const data = await businessPermit.getBusinessPermitByUser(session?.email);
       return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
     }
     return res.error(
@@ -132,7 +129,6 @@ router.get("/services/businessPermit/:userID/:id", async (req, res) => {
       responseMessage.LOGIN_FIRST
     );
   } catch (e) {
-    console.log("🚀 ~ file: business-permit-route.js:39 ~ e:", e);
     return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
   }
 });

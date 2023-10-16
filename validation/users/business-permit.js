@@ -60,6 +60,8 @@ module.exports.validatePermit = {
     dtiRegNo: Joi.number().label("DTI/SEC/CDA Registration No.").required(),
     dtiRegDate: Joi.date().label("DTI/SEC/CDA Registration Date.").required(),
     tinNo: Joi.number().label("Tin No.").required(),
+    amendementFrom: Joi.date().label("From").required(),
+    amendementTo: Joi.date().label("To").required(),
     businessTypeID: Joi.number().label("Business Type").required(),
     enjoyTaxIncentive: Joi.boolean().label("Enjoy Tax Incentive").required(),
     notEnjoyTaxIncentive: Joi.string().when("enjoyTaxIncentive", {

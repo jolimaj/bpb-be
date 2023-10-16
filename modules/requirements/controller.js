@@ -26,7 +26,6 @@ class RequirementsController {
       const data = await this.#businessController.getBusinessPermitsByUserOnly(
         id
       );
-
       return await this.#model.findOne({
         where: {
           businessPermitID: data.dataValues.id,

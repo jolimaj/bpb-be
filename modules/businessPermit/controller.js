@@ -141,35 +141,33 @@ class BusinessPermitService {
       return error;
     }
   }
-  async getBusinessPermitByUser(userID, id) {
+  async getBusinessPermitByUser(email) {
     try {
+      const { id } = await this.#userData.getUserByID(email);
       const queries = {
         where: {
-          businessPermitID: id,
+          userID: id,
         },
       };
 
-      const businessPermitResult = await this.#model.findOne(
-        {
-          where: {
-            userID,
-            id,
-          },
-        },
-        {
-          raw: true,
-        }
-      );
-      const basicInfoResult = await this.#basicInfoModel.findOne(queries, {
-        raw: true,
+      const businessPermitResult = await this.#model.findAll({
+        ...queries,
+        include: [
+          { model: BasicInfo },
+          { model: OtherInfo },
+          { model: BusinessActivity },
+          { model: BFPForm },
+          { model: Requirements },
+        ],
+        order: [["id", "DESC"]],
       });
-
-      const otherInfoResult = await this.#otherInfoModel.findOne(queries, {
-        raw: true,
-      });
-
-      return { businessPermitResult, basicInfoResult, otherInfoResult };
+      console.log(businessPermitResult);
+      return businessPermitResult;
     } catch (error) {
+      console.log(
+        "🚀 ~ file: controller.js:168 ~ BusinessPermitService ~ getBusinessPermitByUser ~ error:",
+        error
+      );
       return error;
     }
   }
@@ -198,7 +196,7 @@ class BusinessPermitService {
             },
             limit: query?.limit ?? 10,
           };
-      const departmentData = await this.#departments.findOne({
+      const departmentData = await this.#departments.findAll({
         where: {
           id: departmentID,
         },

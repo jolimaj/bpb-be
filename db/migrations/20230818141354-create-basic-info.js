@@ -42,6 +42,12 @@ module.exports = {
       tradeFranchiseName: {
         type: Sequelize.STRING,
       },
+      amendementFrom: {
+        type: Sequelize.STRING,
+      },
+      amendementTo: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

@@ -19,6 +19,8 @@ module.exports = (sequelize, DataTypes) => {
       taxPayerName: DataTypes.STRING, // tax Payer
       businessName: DataTypes.STRING,
       tradeFranchiseName: DataTypes.STRING,
+      amendementFrom: DataTypes.STRING,
+      amendementTo: DataTypes.STRING,
     },
     {
       sequelize,

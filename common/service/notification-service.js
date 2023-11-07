@@ -1,5 +1,8 @@
+const secrets = process.env;
+const accountSid = secrets.SMS_SID;
+const authToken = secrets.SMS_AUTH_TOKEN;
+const client = require("twilio")(accountSid, authToken);
 const nodemailer = require("nodemailer");
-const { Vonage } = require("@vonage/server-sdk");
 
 const { TRANSPORTER } = require("../constant/notification-constant");
 
@@ -9,8 +12,6 @@ class NotificationService {
   #notificationMapper;
 
   #transporter;
-
-  #vonage;
 
   constructor() {
     this.#notificationMapper = new NotificationMapper();
@@ -23,10 +24,6 @@ class NotificationService {
         user: process.env.EMAIL_USER, //email ID
         pass: process.env.EMAIL_PASSWORD, //Password
       },
-    });
-    this.#vonage = new Vonage({
-      apiKey: "accdcf4d",
-      apiSecret: "ruO3egZtETjJneZF",
     });
   }
 
@@ -41,8 +38,18 @@ class NotificationService {
 
   async sendSMSNotification(payload) {
     try {
-      const requestBody = this.#notificationMapper.smsMapper(payload);
-      return await this.#vonage.sms.send(requestBody);
+      const requestBody = this.#notificationMapper.smsMapper(
+        {
+          ...payload,
+          from: secrets.SMS_NUM,
+        },
+        department
+      );
+      console.log(
+        "🚀 ~ file: notification-service.js:48 ~ NotificationService ~ sendSMSNotification ~ requestBody:",
+        requestBody
+      );
+      // return await client.messages.create(requestBody);
     } catch (error) {
       return error;
     }

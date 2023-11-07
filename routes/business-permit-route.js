@@ -85,10 +85,121 @@ router.get("/services/requirements", async (req, res) => {
 });
 
 router.post(
+  "/services/businessPermit/validateBasicInfo",
+  mw.validateBasicInfo,
+  async (req, res) => {
+    try {
+      const { body, file, session } = req;
+
+      if (session?.email && session?.password) {
+        return res.success(200, responseCodes.VALIDATION_BASIC_INFO, "valid");
+      }
+      return res.error(
+        400,
+        responseCodes.LOGIN_FIRST,
+        responseMessage.LOGIN_FIRST
+      );
+    } catch (e) {
+      return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+    }
+  }
+);
+
+router.post(
+  "/services/businessPermit/validateBusinessActivity",
+  mw.validateBusinessActivity,
+  async (req, res) => {
+    try {
+      const { body, file, session } = req;
+
+      if (session?.email && session?.password) {
+        return res.success(
+          200,
+          responseCodes.VALIDATION_BUSINESS_ACTIVITY,
+          "valid"
+        );
+      }
+      return res.error(
+        400,
+        responseCodes.LOGIN_FIRST,
+        responseMessage.LOGIN_FIRST
+      );
+    } catch (e) {
+      return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+    }
+  }
+);
+
+router.post(
+  "/services/businessPermit/validateBusinessActivity",
+  mw.validateBusinessActivity,
+  async (req, res) => {
+    try {
+      const { body, file, session } = req;
+
+      if (session?.email && session?.password) {
+        return res.success(
+          200,
+          responseCodes.VALIDATION_BUSINESS_ACTIVITY,
+          "valid"
+        );
+      }
+      return res.error(
+        400,
+        responseCodes.LOGIN_FIRST,
+        responseMessage.LOGIN_FIRST
+      );
+    } catch (e) {
+      return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+    }
+  }
+);
+
+router.post(
+  "/services/businessPermit/validateOtherInfo",
+  mw.validateOtherInfo,
+  async (req, res) => {
+    try {
+      const { body, file, session } = req;
+
+      if (session?.email && session?.password) {
+        return res.success(200, responseCodes.VALIDATION_OTHER_INFO, "valid");
+      }
+      return res.error(
+        400,
+        responseCodes.LOGIN_FIRST,
+        responseMessage.LOGIN_FIRST
+      );
+    } catch (e) {
+      return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+    }
+  }
+);
+
+router.post(
+  "/services/businessPermit/validateBFPForm",
+  mw.validateBFPForm,
+  async (req, res) => {
+    try {
+      const { body, file, session } = req;
+
+      if (session?.email && session?.password) {
+        return res.success(200, responseCodes.VALIDATION_BFP_FORM, "valid");
+      }
+      return res.error(
+        400,
+        responseCodes.LOGIN_FIRST,
+        responseMessage.LOGIN_FIRST
+      );
+    } catch (e) {
+      return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+    }
+  }
+);
+
+router.post(
   "/services/businessPermit",
   upload.single("applicantSignature"),
-  mw.validateSignature,
-  mw.validatePermit,
   async (req, res) => {
     try {
       const { body, file, session } = req;

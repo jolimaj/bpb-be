@@ -24,7 +24,7 @@ class NotificationMapper {
     return {
       from: payload?.from,
       to: payload?.mobile,
-      text: payload?.message,
+      body: payload?.message,
     };
   }
 }

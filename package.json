@@ -6,7 +6,7 @@
   "Author": "Jolima Javin-Software Engineer",
   "scripts": {
     "dev": "node index.js",
-    "start": "npm install node index.js",
+    "start": "node index.js",
     "db:generate": "npx sequelize-cli model:generate",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo:all",

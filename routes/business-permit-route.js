@@ -92,7 +92,10 @@ router.post(
       const { body, file, session } = req;
 
       if (session?.email && session?.password) {
-        return res.success(200, responseCodes.VALIDATION_BASIC_INFO, "valid");
+        const data = await businessPermit.validateBusinessName(
+          body.businessName
+        );
+        return res.success(200, responseCodes.VALIDATION_BASIC_INFO, data);
       }
       return res.error(
         400,

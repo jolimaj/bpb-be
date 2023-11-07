@@ -141,6 +141,22 @@ class BusinessPermitService {
       return error;
     }
   }
+
+  async validateBusinessName(businessName) {
+    try {
+      const data = BasicInfo.findOne({
+        where: {
+          businessName,
+        },
+      });
+      if (data) {
+        return Promise.reject("Business Already Registered");
+      }
+      return "valid";
+    } catch (error) {
+      return error;
+    }
+  }
   async getBusinessPermitByUser(email) {
     try {
       const { id } = await this.#userData.getUserByID(email);

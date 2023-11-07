@@ -11,6 +11,10 @@ const {
 } = require("./admin/staff-validation");
 const {
   validatePermit,
+  validateBFPForm,
+  validateBasicInfo,
+  validateBusinessActivity,
+  validateOtherInfo,
   validateSignature,
   validateSignatureApprover,
   validateApprover,
@@ -49,6 +53,14 @@ const validate = {
     schemaValidate(validateStaffID, req, res, next),
   validatePermit: (req, res, next) =>
     schemaValidate(validatePermit, req, res, next),
+  validateBasicInfo: (req, res, next) =>
+    schemaValidate(validateBasicInfo, req, res, next),
+  validateBusinessActivity: (req, res, next) =>
+    schemaValidate(validateBusinessActivity, req, res, next),
+  validateOtherInfo: (req, res, next) =>
+    schemaValidate(validateOtherInfo, req, res, next),
+  validateBFPForm: (req, res, next) =>
+    schemaValidate(validateBFPForm, req, res, next),
   validateSignature: (req, res, next) =>
     schemaValidate(validateSignature, req, res, next),
   validateSignatureApprover: (req, res, next) =>

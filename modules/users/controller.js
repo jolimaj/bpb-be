@@ -283,6 +283,10 @@ class UsersController {
         raw: true,
       });
 
+      if (!emailData.isActive) {
+        return Promise.reject(responseMessage.ACCOUNT_NOT_ACTIVE);
+      }
+
       if (!emailData) {
         return Promise.reject(responseMessage.INVALID_EMAIL);
       }

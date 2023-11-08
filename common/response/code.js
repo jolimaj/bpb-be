@@ -27,6 +27,7 @@ const responseCodes = {
 };
 
 const responseMessage = {
+  ACCOUNT_NOT_ACTIVE: "The account is not yet activate!!",
   EMAIL_NOT_FOUND: "The provided email address is not found!!",
   EMAIL_ALREADY_TAKEN:
     "The email address or phone number provided is already in use.",

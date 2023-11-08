@@ -232,6 +232,10 @@ router.post(
 router.get("/services/businessPermit", async (req, res) => {
   try {
     const { session } = req;
+    console.log(
+      "🚀 ~ file: business-permit-route.js:235 ~ router.get ~ session:",
+      session
+    );
 
     if (session?.email && session?.password) {
       const data = await businessPermit.getBusinessPermitByUser(session?.email);

@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(
   cors({
     credentials: true,
-    // origin: true,
+    origin: true,
   })
 );
 

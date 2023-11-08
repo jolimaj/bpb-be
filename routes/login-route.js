@@ -25,6 +25,10 @@ router.post("/sign-in", mw.validateLogin, async (req, res) => {
     req.session.email = body.email;
     req.session.password = body.password;
     req.session.save();
+    console.log(
+      "🚀 ~ file: login-route.js:28 ~ router.post ~ req.session:",
+      req.session
+    );
     return res.success(200, responseCodes.LOGIN_SUCCESS, data);
   } catch (e) {
     return res.error(400, responseCodes.LOGIN_FAILED, e);

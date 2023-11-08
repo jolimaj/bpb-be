@@ -144,15 +144,12 @@ class BusinessPermitService {
 
   async validateBusinessName(businessName) {
     try {
-      const data = BasicInfo.findOne({
+      const data = await BasicInfo.findOne({
         where: {
           businessName,
         },
       });
-      console.log(
-        "🚀 ~ file: controller.js:152 ~ BusinessPermitService ~ validateBusinessName ~ data:",
-        data
-      );
+
       if (data) {
         return Promise.reject("Business Already Registered");
       }

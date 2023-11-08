@@ -50,6 +50,10 @@ router.put("/profile", async (req, res) => {
 router.post("/staff", mw.validateStaff, async (req, res) => {
   try {
     const { body, session } = req;
+    console.log(
+      "🚀 ~ file: admin-route.js:53 ~ router.post ~ session:",
+      session
+    );
 
     if (session?.email && session?.password) {
       const data = await usersController.addStaff(body);

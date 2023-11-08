@@ -149,6 +149,10 @@ class BusinessPermitService {
           businessName,
         },
       });
+      console.log(
+        "🚀 ~ file: controller.js:152 ~ BusinessPermitService ~ validateBusinessName ~ data:",
+        data
+      );
       if (data) {
         return Promise.reject("Business Already Registered");
       }

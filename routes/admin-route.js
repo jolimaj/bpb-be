@@ -159,6 +159,7 @@ router.put("/departments/:departmentID", async (req, res) => {
 
 router.get("/dashboard", async (req, res) => {
   const { query, session } = req;
+  console.log("🚀 ~ file: admin-route.js:162 ~ router.get ~ session:", session);
 
   if (session?.email && session?.password) {
     const data = await businessPermitController.countData(query);

@@ -417,6 +417,10 @@ router.get("/departments/profile", async (req, res) => {
 
 router.get("/profile", async (req, res) => {
   const { session } = req;
+  console.log(
+    "🚀 ~ file: business-permit-route.js:420 ~ router.get ~ session:",
+    session
+  );
   if (session?.email && session?.password) {
     const data = await usersController.getUserByID(session?.email);
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);

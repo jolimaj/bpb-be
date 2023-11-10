@@ -41,7 +41,15 @@ class RequirementsController {
       const result = Object.fromEntries(
         keyName.map((array1value, index) => [array1value, imageUrlList[index]])
       );
+      console.log(
+        "🚀 ~ file: controller.js:44 ~ RequirementsController ~ submitRequirements ~ result:",
+        result
+      );
       const data = this.#mapper.submit(result);
+      console.log(
+        "🚀 ~ file: controller.js:45 ~ RequirementsController ~ submitRequirements ~ data:",
+        data
+      );
       return await this.#model.update(data, {
         where: {
           businessPermitID: id,

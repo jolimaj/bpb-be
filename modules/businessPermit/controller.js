@@ -158,6 +158,29 @@ class BusinessPermitService {
       return error;
     }
   }
+
+  async getRequirementsList(email, code) {
+    try {
+      const { id } = await this.#userData.getUserByID(email);
+      const queries = {
+        where: {
+          userID: id,
+        },
+      };
+
+      const businessPermitResult = await this.#model.findAll({
+        queries,
+      });
+      console.log(businessPermitResult);
+      return businessPermitResult;
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: controller.js:168 ~ BusinessPermitService ~ getBusinessPermitByUser ~ error:",
+        error
+      );
+      return error;
+    }
+  }
   async getBusinessPermitByUser(email) {
     try {
       const { id } = await this.#userData.getUserByID(email);

@@ -30,32 +30,25 @@ router.put(
     try {
       const { params, files, session } = req;
 
-      if (session?.email && session?.password) {
-        const imageUrlList = [];
-        const keyName = [];
+      const imageUrlList = [];
+      const keyName = [];
 
-        for (const item in files) {
-          const body = await uploaderService.uploadFiles(
-            files[item],
-            "requirements"
-          );
-          imageUrlList.push(body);
-          keyName.push(files[item].fieldname);
-        }
-
-        const data = await requirementsController.submitRequirements(
-          imageUrlList,
-          keyName,
-          params.id
+      for (const item in files) {
+        const body = await uploaderService.uploadFiles(
+          files[item],
+          `requirements/${files[item].fieldname}`
         );
-        if (imageUrlList.length > 0)
-          return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+        imageUrlList.push(body);
+        keyName.push(files[item].fieldname);
       }
-      return res.error(
-        400,
-        responseCodes.LOGIN_FIRST,
-        responseMessage.LOGIN_FIRST
+      const data = await requirementsController.submitRequirements(
+        imageUrlList,
+        keyName,
+        params.id
       );
+      console.log("🚀 ~ file: business-permit-route.js:51 ~ data:", data);
+      if (imageUrlList.length > 0)
+        return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
     } catch (e) {
       return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
     }
@@ -232,11 +225,23 @@ router.post(
 router.get("/services/businessPermit", async (req, res) => {
   try {
     const { session } = req;
-    console.log(
-      "🚀 ~ file: business-permit-route.js:235 ~ router.get ~ session:",
-      session
+    if (session?.email && session?.password) {
+      const data = await businessPermit.getBusinessPermitByUser(session?.email);
+      return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
+    }
+    return res.error(
+      400,
+      responseCodes.LOGIN_FIRST,
+      responseMessage.LOGIN_FIRST
     );
+  } catch (e) {
+    return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+  }
+});
 
+router.get("/services/requirements", async (req, res) => {
+  try {
+    const { session } = req;
     if (session?.email && session?.password) {
       const data = await businessPermit.getBusinessPermitByUser(session?.email);
       return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
@@ -399,4 +404,25 @@ router.put("/profile", async (req, res) => {
     return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
   }
 });
+
+router.get("/departments/profile", async (req, res) => {
+  const { session } = req;
+  if (session?.email && session?.password) {
+    const data = await usersController.getUserByID(session?.email);
+    return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
+  }
+
+  return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
+});
+
+router.get("/profile", async (req, res) => {
+  const { session } = req;
+  if (session?.email && session?.password) {
+    const data = await usersController.getUserByID(session?.email);
+    return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);
+  }
+
+  return res.error(400, responseCodes.LOGIN_FIRST, responseMessage.LOGIN_FIRST);
+});
+
 module.exports = router;

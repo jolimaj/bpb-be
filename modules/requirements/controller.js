@@ -36,25 +36,34 @@ class RequirementsController {
     }
   }
 
-  async submitRequirements(imageUrlList, keyName, id) {
+  async submitRequirements(imageUrlList, keyName, id, body) {
+    console.log(
+      "🚀 ~ file: controller.js:40 ~ RequirementsController ~ submitRequirements ~ body:",
+      body
+    );
     try {
       const result = Object.fromEntries(
         keyName.map((array1value, index) => [array1value, imageUrlList[index]])
       );
-      console.log(
-        "🚀 ~ file: controller.js:44 ~ RequirementsController ~ submitRequirements ~ result:",
-        result
-      );
       const data = this.#mapper.submit(result);
       console.log(
-        "🚀 ~ file: controller.js:45 ~ RequirementsController ~ submitRequirements ~ data:",
-        data
+        "🚀 ~ file: controller.js:46 ~ RequirementsController ~ submitRequirements ~ body:",
+        body
       );
-      return await this.#model.update(data, {
-        where: {
-          businessPermitID: id,
-        },
-      });
+      if (body) {
+        data.businessPermitID = body.id;
+        console.log(
+          "🚀 ~ file: controller.js:47 ~ RequirementsController ~ submitRequirements ~ data:",
+          data
+        );
+        return await this.#model.create(data);
+      } else {
+        return await this.#model.update(data, {
+          where: {
+            businessPermitID: id,
+          },
+        });
+      }
     } catch (error) {
       return error;
     }

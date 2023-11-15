@@ -64,6 +64,9 @@ module.exports = {
       mtoAssestmentRecord: {
         type: Sequelize.STRING,
       },
+      mtoPayment: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

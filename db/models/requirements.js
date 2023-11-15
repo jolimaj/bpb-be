@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       fireSafetyCert: DataTypes.STRING,
       water: DataTypes.STRING,
       mtoAssestmentRecord: DataTypes.STRING,
+      mtoPayment: DataTypes.STRING,
     },
     {
       sequelize,

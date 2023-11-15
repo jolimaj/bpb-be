@@ -50,6 +50,41 @@ router.put(
       if (imageUrlList.length > 0)
         return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
     } catch (e) {
+      console.log("🚀 ~ file: business-permit-route.js:53 ~ e:", e);
+      return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
+    }
+  }
+);
+
+router.post(
+  "/services/requirements",
+  upload.any("requirements"),
+  async (req, res) => {
+    try {
+      const { params, body, files, session } = req;
+
+      const imageUrlList = [];
+      const keyName = [];
+
+      for (const item in files) {
+        const bodys = await uploaderService.uploadFiles(
+          files[item],
+          `requirements/${files[item].fieldname}`
+        );
+        imageUrlList.push(bodys);
+        keyName.push(files[item].fieldname);
+      }
+      const data = await requirementsController.submitRequirements(
+        imageUrlList,
+        keyName,
+        params.id,
+        body
+      );
+      console.log("🚀 ~ file: business-permit-route.js:51 ~ data:", data);
+      if (imageUrlList.length > 0)
+        return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+    } catch (e) {
+      console.log("🚀 ~ file: business-permit-route.js:53 ~ e:", e);
       return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
     }
   }
@@ -86,7 +121,8 @@ router.post(
 
       if (session?.email && session?.password) {
         const data = await businessPermit.validateBusinessName(
-          body.businessName
+          body.businessName,
+          body.type
         );
         return res.success(200, responseCodes.VALIDATION_BASIC_INFO, data);
       }
@@ -222,11 +258,57 @@ router.post(
   }
 );
 
+router.put(
+  "/services/businessPermit/:id",
+  upload.single("applicantSignature"),
+  async (req, res) => {
+    try {
+      const { body, file, session } = req;
+
+      if (session?.email && session?.password) {
+        body.applicantSignature = await uploaderService.uploadFiles(
+          file,
+          "applicantSignature"
+        );
+        const data = await businessPermit.renewBusinessPermit(
+          body,
+          session?.email
+        );
+        return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
+      }
+      return res.error(
+        400,
+        responseCodes.LOGIN_FIRST,
+        responseMessage.LOGIN_FIRST
+      );
+    } catch (e) {
+      return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
+    }
+  }
+);
+
 router.get("/services/businessPermit", async (req, res) => {
   try {
     const { session } = req;
     if (session?.email && session?.password) {
       const data = await businessPermit.getBusinessPermitByUser(session?.email);
+      return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
+    }
+    return res.error(
+      400,
+      responseCodes.LOGIN_FIRST,
+      responseMessage.LOGIN_FIRST
+    );
+  } catch (e) {
+    return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+  }
+});
+
+router.get("/services/businessPermit/requirements/:id", async (req, res) => {
+  try {
+    const { session, params } = req;
+    if (session?.email && session?.password) {
+      const data = await businessPermit.getRequirementsByID(params?.id);
       return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
     }
     return res.error(

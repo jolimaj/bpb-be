@@ -105,6 +105,9 @@ class BusinessPermitMapper {
           : DEPARTMENT_ID.BPLO,
       applicantSignature: payload?.applicantSignature,
       applicantPosition: payload?.applicantPosition,
+      approvedDate: payload?.approvedDate,
+      queueNo: payload?.queueNo ?? "",
+      qrCode: payload?.qrCode ?? "",
     };
   }
 }

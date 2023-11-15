@@ -79,6 +79,19 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      approvedDate: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: new Date(),
+      },
+      queueNo: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
+      qrCode: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

@@ -142,7 +142,7 @@ class BusinessPermitService {
     }
   }
 
-  async validateBusinessName(businessName) {
+  async validateBusinessName(businessName, type) {
     try {
       const data = await BasicInfo.findOne({
         where: {
@@ -150,7 +150,7 @@ class BusinessPermitService {
         },
       });
 
-      if (data) {
+      if (type === 1 && data) {
         return Promise.reject("Business Already Registered");
       }
       return "valid";
@@ -200,6 +200,28 @@ class BusinessPermitService {
           { model: Requirements },
         ],
         order: [["id", "DESC"]],
+      });
+      console.log(businessPermitResult);
+      return businessPermitResult;
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: controller.js:168 ~ BusinessPermitService ~ getBusinessPermitByUser ~ error:",
+        error
+      );
+      return error;
+    }
+  }
+
+  async getRequirementsByID(businessPermitID) {
+    try {
+      const queries = {
+        where: {
+          businessPermitID,
+        },
+      };
+
+      const businessPermitResult = await Requirements.findOne({
+        ...queries,
       });
       console.log(businessPermitResult);
       return businessPermitResult;

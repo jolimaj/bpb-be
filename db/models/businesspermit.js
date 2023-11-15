@@ -33,6 +33,9 @@ module.exports = (sequelize, DataTypes) => {
       signatureMTO: DataTypes.STRING,
       signatureBFP: DataTypes.STRING,
       signatureBPLO: DataTypes.STRING,
+      approvedDate: DataTypes.DATE,
+      queueNo: DataTypes.STRING,
+      qrCode: DataTypes.STRING,
     },
     {
       sequelize,

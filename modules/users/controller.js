@@ -283,12 +283,12 @@ class UsersController {
         raw: true,
       });
 
-      if (!emailData.isActive) {
-        return Promise.reject(responseMessage.ACCOUNT_NOT_ACTIVE);
-      }
-
       if (!emailData) {
         return Promise.reject(responseMessage.INVALID_EMAIL);
+      }
+
+      if (!emailData.isActive) {
+        return Promise.reject(responseMessage.ACCOUNT_NOT_ACTIVE);
       }
 
       const passwordData = this.#securePassword.decryptPassword(
@@ -301,6 +301,10 @@ class UsersController {
       }
       return emailData;
     } catch (error) {
+      console.log(
+        "🚀 ~ file: controller.js:304 ~ UsersController ~ loginUser ~ error:",
+        error
+      );
       return error;
     }
   }

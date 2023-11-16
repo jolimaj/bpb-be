@@ -91,25 +91,28 @@ class BusinessPermitService {
       return error;
     }
   }
-  async renewBusinessPermit(payload, email) {
+  async renewBusinessPermit(payload, email, id) {
     try {
-      const userData = await this.#userData.getUserByID(email);
-      payload.userID = userData.id;
-      payload.type = APPLICATION_TYPES.NEW;
       const businessPermits = this.#mapper.apply(payload);
-      const businessPermitResult = await this.#model.create(businessPermits, {
-        raw: true,
+      const businessPermitResult = await this.#model.update(businessPermits, {
+        where: {
+          id,
+        },
       });
       payload.id = businessPermitResult.dataValues.id;
 
       const basicInfo = this.#mapper.basicInfo(payload);
-      const basicInfoResult = await this.#basicInfoModel.create(basicInfo, {
-        raw: true,
+      const basicInfoResult = await this.#basicInfoModel.update(basicInfo, {
+        where: {
+          businessPermitID: id,
+        },
       });
 
       const otherInfo = this.#mapper.otherInfo(payload);
-      const otherInfoResult = await this.#otherInfoModel.create(otherInfo, {
-        raw: true,
+      const otherInfoResult = await this.#otherInfoModel.update(otherInfo, {
+        where: {
+          businessPermitID: id,
+        },
       });
 
       const businessActivity = this.#mapper.businessActivity(payload);
@@ -120,15 +123,16 @@ class BusinessPermitService {
 
       const bfp = this.#mapper.bfpForm(payload);
 
-      const bfpResult = await this.#bfpForm.create(bfp, {
-        raw: true,
+      const bfpResult = await this.#bfpForm.update(bfp, {
+        where: {
+          businessPermitID: id,
+        },
       });
-      const requirementResult = await this.#requirement.create(
-        { businessPermitID: payload.id },
-        {
-          raw: true,
-        }
-      );
+      const requirementResult = await this.#requirement.update(payload, {
+        where: {
+          businessPermitID: id,
+        },
+      });
       return {
         businessPermitResult,
         basicInfoResult,

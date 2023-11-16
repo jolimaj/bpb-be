@@ -263,7 +263,7 @@ router.put(
   upload.single("applicantSignature"),
   async (req, res) => {
     try {
-      const { body, file, session } = req;
+      const { body, file, session, params } = req;
 
       if (session?.email && session?.password) {
         body.applicantSignature = await uploaderService.uploadFiles(
@@ -272,7 +272,8 @@ router.put(
         );
         const data = await businessPermit.renewBusinessPermit(
           body,
-          session?.email
+          session?.email,
+          params?.id
         );
         return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
       }

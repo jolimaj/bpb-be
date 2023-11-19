@@ -283,6 +283,7 @@ router.put(
         responseMessage.LOGIN_FIRST
       );
     } catch (e) {
+      console.log("🚀 ~ file: business-permit-route.js:286 ~ e:", e);
       return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
     }
   }
@@ -417,21 +418,34 @@ router.put(
   async (req, res) => {
     try {
       const { params, body, files, session } = req;
+      console.log(
+        "🚀 ~ file: business-permit-route.js:421 ~ params, body, files, session:",
+        params,
+        body,
+        files,
+        session
+      );
 
       if (session?.email && session?.password) {
         let data;
         if (body?.result === "approve") {
-          const request = await uploaderService.uploadFiles(
-            files[0],
-            files[0].fieldname
-          );
-          data = await businessPermit.reviewPermit(
-            params.id,
-            request,
-            files[0].fieldname
-          );
+          let request;
+          if (files) {
+            request = await uploaderService.uploadFiles(
+              files[0],
+              files[0]?.fieldname
+            );
+            data = await businessPermit.reviewPermit(
+              params.id,
+              request,
+              files[0]?.fieldname
+            );
+          } else {
+            data = await businessPermit.reviewPermit(params.id);
+          }
+        } else {
+          data = await businessPermit.disapproveRequest(params.id, body);
         }
-        data = await businessPermit.disapproveRequest(params.id, body);
         return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
       }
 
@@ -441,6 +455,7 @@ router.put(
         responseMessage.LOGIN_FIRST
       );
     } catch (e) {
+      console.log("🚀 ~ file: business-permit-route.js:449 ~ e:", e);
       return res.error(400, responseCodes.UPDATE_RECORD_FAILED, e);
     }
   }

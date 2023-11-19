@@ -24,16 +24,24 @@ class UsersController {
 
   constructor() {
     this.#model = User;
-    this.#notifParams = NotifParams;
     this.#mapper = new UserMapper();
     this.#notifService = new NotificationService();
     this.#securePassword = new SecurePassword();
     this.#departmentModule = new DepartmentsModule();
+    this.#notifParams = NotifParams;
     this.#notifModules = new NotificationController();
   }
   async getUserByID(email) {
     try {
       return await this.#model.findOne({ where: { email }, raw: true });
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async getUserData(id) {
+    try {
+      return await this.#model.findOne({ where: { id }, raw: true });
     } catch (error) {
       return error;
     }

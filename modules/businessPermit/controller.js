@@ -8,7 +8,9 @@ const {
   Departments,
   Requirements,
 } = require("../../db/models/index");
-
+const {
+  NotificationService,
+} = require("../../common/service/notification-service");
 const { UsersController } = require("../users/controller");
 
 const {
@@ -29,6 +31,7 @@ class BusinessPermitService {
   #userData;
   #requirement;
   #departments;
+  #notifService;
 
   constructor() {
     this.#mapper = new BusinessPermitMapper();
@@ -40,6 +43,7 @@ class BusinessPermitService {
     this.#userData = new UsersController();
     this.#requirement = Requirements;
     this.#departments = Departments;
+    this.#notifService = new NotificationService();
   }
 
   async applyBusinessPermit(payload, email) {
@@ -79,6 +83,14 @@ class BusinessPermitService {
           raw: true,
         }
       );
+      const { mobile } = await this.#userData.getUserData(
+        requirementResult?.userID
+      );
+
+      await this.#notifService.sendSMSNotification({
+        ...businessPermitResult,
+        mobile,
+      });
       return {
         businessPermitResult,
         basicInfoResult,
@@ -117,7 +129,7 @@ class BusinessPermitService {
 
       const businessActivity = this.#mapper.businessActivity(payload);
       const businessActivityResult =
-        await this.#businessActivityModel.bulkCreate(businessActivity, {
+        await this.#businessActivityModel.bulkUpdate(businessActivity, {
           raw: true,
         });
 
@@ -133,6 +145,11 @@ class BusinessPermitService {
           businessPermitID: id,
         },
       });
+      const recs = await this.getBusinessPermitByID(id);
+      const { mobile } = await this.#userData.getUserData(recs?.userID);
+
+      await this.#notifService.sendSMSNotification({ ...recs, mobile });
+
       return {
         businessPermitResult,
         basicInfoResult,
@@ -340,10 +357,10 @@ class BusinessPermitService {
           assignedToDepartmentID = DEPARTMENT_ID.MENRO;
           approvedByMTO2 = true;
           signatureMTO = body?.signatureMTO;
+        } else {
+          assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
+          approvedByMTO1 = true;
         }
-
-        assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
-        approvedByMTO1 = true;
         break;
       case DEPARTMENT_ID.SANIDAD:
         assignedToDepartmentID = DEPARTMENT_ID.MEO;
@@ -428,15 +445,18 @@ class BusinessPermitService {
       signatureMTO,
       signatureBFP,
       signatureBPLO;
+
     switch (assignee) {
       case DEPARTMENT_ID.BPLO:
         if (payload.approvedByBPLO1) {
           assignedToDepartmentID = DEPARTMENT_ID.MTO;
           approvedByBPLO2 = true;
           signatureBPLO = body?.signatureBPLO;
+        } else {
+          assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
+          approvedByBPLO1 = true;
+          status = 0;
         }
-        assignedToDepartmentID = DEPARTMENT_ID.SANIDAD;
-        approvedByBPLO1 = true;
         break;
       case DEPARTMENT_ID.SANIDAD:
         assignedToDepartmentID = DEPARTMENT_ID.BPLO;
@@ -450,10 +470,11 @@ class BusinessPermitService {
       case DEPARTMENT_ID.BFP:
         assignedToDepartmentID = DEPARTMENT_ID.BPLO;
         approvedByBFP = true;
-        status = 1;
+        status = 3;
         signatureBFP = body?.signatureBFP;
         break;
     }
+
     return {
       assignedToDepartmentID,
       approvedByMTO1,
@@ -496,9 +517,8 @@ class BusinessPermitService {
   async #reviewByType(type, assignee, payload, body) {
     let action;
     switch (type) {
-      case APPLICATION_TYPES.RENEW:
+      case 2:
         action = this.#assigneeRenewalPermit(assignee, payload, body);
-
         break;
       default:
         action = this.#assigneeNewPermit(assignee, payload, body);
@@ -516,7 +536,7 @@ class BusinessPermitService {
       case "signatureBFP":
         signatureBFP = files;
         break;
-      case "signatureBFP":
+      case "signatureBPLO":
         signatureBPLO = files;
         break;
     }
@@ -528,20 +548,42 @@ class BusinessPermitService {
   }
   async reviewPermit(id, files, keyName) {
     const { dataValues } = await this.getBusinessPermitByID(id);
+    const { mobile } = await this.#userData.getUserData(dataValues?.userID);
 
     try {
-      const payload = await this.#reviewSignature(files, keyName);
-      const reviewed = await this.#reviewByType(
-        dataValues?.type,
-        dataValues?.assignedToDepartmentID,
-        dataValues,
-        payload
-      );
-      const result = await this.#model.update(reviewed, {
+      let payload, reviewed;
+      if (files) {
+        payload = await this.#reviewSignature(files, keyName);
+        reviewed = await this.#reviewByType(
+          dataValues?.type,
+          dataValues?.assignedToDepartmentID,
+          dataValues,
+          payload
+        );
+      } else {
+        reviewed = await this.#reviewByType(
+          dataValues?.type,
+          dataValues?.assignedToDepartmentID,
+          dataValues
+        );
+      }
+
+      await this.#model.update(reviewed, {
         where: { id },
         plain: true,
       });
-      return result;
+      const records = await this.#model.findOne({ where: { id } });
+      console.log(
+        "🚀 ~ file: controller.js:565 ~ BusinessPermitService ~ reviewPermit ~ records:",
+        records
+      );
+
+      await this.#notifService.sendSMSNotification({
+        ...records.dataValues,
+        mobile,
+      });
+
+      return records;
     } catch (error) {
       return error;
     }
@@ -560,6 +602,12 @@ class BusinessPermitService {
       const result = await this.#model.update(requestData, {
         where: { id },
         plain: true,
+      });
+      const { mobile } = await this.#userData.getUserData(dataValues?.userID);
+
+      await this.#notifService.sendSMSNotification({
+        ...dataValues,
+        mobile,
       });
       return result;
     } catch (error) {

@@ -1,10 +1,13 @@
 const { EmailHelper } = require("../../helpers/notification/email-message");
+const { SMSHelper } = require("../../helpers/notification/sms-message");
 
 class NotificationMapper {
   #emailHelper;
+  #smsHelper;
 
   constructor() {
     this.#emailHelper = new EmailHelper();
+    this.#smsHelper = new SMSHelper();
   }
 
   emailMapper(payload, type) {
@@ -20,11 +23,11 @@ class NotificationMapper {
     };
   }
 
-  smsMapper(payload) {
+  smsMapper(payload, department) {
     return {
       from: payload?.from,
       to: payload?.mobile,
-      body: payload?.message,
+      body: this.#smsHelper.message(department, payload?.type, payload?.status),
     };
   }
 }

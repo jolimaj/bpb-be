@@ -29,10 +29,6 @@ class NotificationService {
 
   async sendEmailNotification(payload, type) {
     const requestBody = this.#notificationMapper.emailMapper(payload, type);
-    console.log(
-      "🚀 ~ file: notification-service.js:35 ~ NotificationService ~ sendEmailNotification ~ requestBody:",
-      requestBody
-    );
     return await this.#transporter.sendMail(requestBody);
   }
 
@@ -43,13 +39,9 @@ class NotificationService {
           ...payload,
           from: secrets.SMS_NUM,
         },
-        department
+        payload.assignedToDepartmentID
       );
-      console.log(
-        "🚀 ~ file: notification-service.js:48 ~ NotificationService ~ sendSMSNotification ~ requestBody:",
-        requestBody
-      );
-      // return await client.messages.create(requestBody);
+      return await client.messages.create(requestBody);
     } catch (error) {
       return error;
     }

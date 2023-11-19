@@ -137,14 +137,21 @@ module.exports.validateOtherInfo = {
     businessPostalCode: Joi.number().label("Business Postal Code").required(),
     businessTelephone: Joi.number()
       .label("Business Telephone Number")
-      .optional(),
+      .optional()
+      .allow(null, ""),
     businessMobile: Joi.number().label("Business Mobile Number").required(),
     businessEmail: Joi.string().label("Business Email Address").optional(),
     ownersAddress: Joi.string().label("Owners Address").required(),
     ownersPostalCode: Joi.number().label("Owners Postal Code").required(),
-    ownersTelephone: Joi.number().label("Owners Telephone Number").optional(),
+    ownersTelephone: Joi.number()
+      .label("Owners Telephone Number")
+      .optional()
+      .allow(null, ""),
     ownersMobile: Joi.number().label("Owners Mobile Number").required(),
-    ownersEmail: Joi.string().label("Owners Email Address").optional(),
+    ownersEmail: Joi.string()
+      .label("Owners Email Address")
+      .optional()
+      .allow(null, ""),
     emergencyPerson: Joi.string().label("Emergency Contact Person").required(),
     emergencyAddress: Joi.string()
       .label("Emergency Contact Person Address")

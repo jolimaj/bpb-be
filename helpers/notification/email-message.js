@@ -1,7 +1,7 @@
 const { NOTIF_TYPE } = require("../../common/constant/notification-constant");
 
 class EmailHelper {
-  message(id, notifParamsId, type) {
+  message(id, notifParamsId, scheduleDate, queueNo, type) {
     let text;
 
     switch (type) {
@@ -26,8 +26,8 @@ class EmailHelper {
         break;
       case NOTIF_TYPE.RELEASE_PERMIT:
         text = `We wanted to inform you that your business permit application was approved and already release.
-        
-        Kindly see the attach business permit, QR code and Queue No. below:`;
+        Your schedule is on ${scheduleDate} with the Queue No. of ${queueNo}.
+        Kindly see the attached business permit and QR code below:`;
         break;
       default:
         text =

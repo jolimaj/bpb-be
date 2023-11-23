@@ -8,6 +8,7 @@ const {
   BFPForm,
   Departments,
   Requirements,
+  QueueNos,
 } = require("../../db/models/index");
 const {
   NotificationService,
@@ -641,6 +642,22 @@ class BusinessPermitService {
       return error;
     }
   }
+  #handleCreateQNDate() {
+    const date = new Date(new Date().getTime() + 120 * 60 * 60 * 1000);
+    const day = date.getDay();
+    if (day === 6 || day === 7) {
+      return new Date(new Date(date).getTime() + 48 * 60 * 60 * 1000);
+    }
+    return date;
+  }
+  async #addQN(payload) {
+    try {
+      const result = await QueueNos.create(payload, { raw: true, plain: true });
+      return result;
+    } catch (error) {
+      return error;
+    }
+  }
   async releasePermit(id) {
     try {
       const { dataValues } = await this.#model.findOne({ where: { id } });
@@ -662,10 +679,12 @@ class BusinessPermitService {
         businessName,
         businessAddress,
       });
-      console.log(
-        "🚀 ~ file: controller.js:665 ~ BusinessPermitService ~ releasePermit ~ qrCodeData:",
-        qrCodeData
-      );
+      const scheduleDate = this.#handleCreateQNDate();
+
+      await this.#addQN({
+        scheduleDate: new Date(scheduleDate),
+        userID: userData.id,
+      });
 
       const pdfAttchment = await this.#pdfAttach.createPDF({
         ...userData,
@@ -673,12 +692,21 @@ class BusinessPermitService {
         businessName,
         businessAddress,
       });
+      const queeNo = await QueueNos.findOne({
+        where: { userID: userData.id },
+        raw: true,
+      });
+      console.log(
+        "🚀 ~ file: controller.js:699 ~ BusinessPermitService ~ releasePermit ~ queeNo:",
+        queeNo
+      );
 
       await this.#model.update(
         {
           isRelease: true,
           certificate: pdfAttchment,
           qrCode: qrCodeData,
+          queueNo: queeNo.id,
         },
         {
           where: { id },
@@ -695,6 +723,8 @@ class BusinessPermitService {
             businessName,
             certificate: pdfAttchment,
             qrCode: qrCodeData,
+            queueNo: queeNo.id,
+            scheduleDate,
           },
           NOTIF_TYPE.RELEASE_PERMIT
         );

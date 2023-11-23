@@ -19,6 +19,8 @@ class NotificationMapper {
       text: this.#emailHelper.message(
         payload?.id,
         payload?.notifParamsId,
+        payload?.scheduleDate,
+        payload.queueNo,
         type
       ),
     };

@@ -1,4 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
+const moment = require("moment");
 const {
   BasicInfo,
   BusinessActivity,
@@ -11,6 +12,8 @@ const {
 const {
   NotificationService,
 } = require("../../common/service/notification-service");
+const { PDFAttach } = require("../../common/service/pdf-attach");
+const { QRCodeService } = require("../../common/service/qr-code");
 const { UsersController } = require("../users/controller");
 
 const {
@@ -20,6 +23,7 @@ const {
   APPLICATION_TYPES,
   DEPARTMENT_ID,
 } = require("../../common/constant/business-permit-constant");
+const { NOTIF_TYPE } = require("../../common/constant/notification-constant");
 
 class BusinessPermitService {
   #model;
@@ -32,6 +36,8 @@ class BusinessPermitService {
   #requirement;
   #departments;
   #notifService;
+  #pdfAttach;
+  #qrCodeService;
 
   constructor() {
     this.#mapper = new BusinessPermitMapper();
@@ -44,6 +50,8 @@ class BusinessPermitService {
     this.#requirement = Requirements;
     this.#departments = Departments;
     this.#notifService = new NotificationService();
+    this.#pdfAttach = new PDFAttach();
+    this.#qrCodeService = new QRCodeService();
   }
 
   async applyBusinessPermit(payload, email) {
@@ -222,7 +230,6 @@ class BusinessPermitService {
         ],
         order: [["id", "DESC"]],
       });
-      console.log(businessPermitResult);
       return businessPermitResult;
     } catch (error) {
       console.log(
@@ -232,7 +239,38 @@ class BusinessPermitService {
       return error;
     }
   }
+  async getBusinessPermitByUserForRenewal(email) {
+    try {
+      const { id } = await this.#userData.getUserByID(email);
+      const queries = {
+        where: {
+          userID: id,
+          createdAt: {
+            [Op.lte]: moment().subtract(365, "days").toISOString(),
+          },
+        },
+      };
 
+      const businessPermitResult = await this.#model.findAll({
+        ...queries,
+        include: [
+          { model: BasicInfo },
+          { model: OtherInfo },
+          { model: BusinessActivity },
+          { model: BFPForm },
+          { model: Requirements },
+        ],
+        order: [["id", "DESC"]],
+      });
+      return businessPermitResult;
+    } catch (error) {
+      console.log(
+        "🚀 ~ file: controller.js:168 ~ BusinessPermitService ~ getBusinessPermitByUser ~ error:",
+        error
+      );
+      return error;
+    }
+  }
   async getRequirementsByID(businessPermitID) {
     try {
       const queries = {
@@ -259,8 +297,27 @@ class BusinessPermitService {
       const type =
         types === "new" ? APPLICATION_TYPES.NEW : APPLICATION_TYPES.RENEW;
       const { departmentID } = await this.#userData.getUserByID(email);
+      const renewalQuery = query?.searhQuery
+        ? {
+            where: {
+              assignedToDepartmentID: departmentID,
+              [Op.or]: [
+                { id: query?.searhQuery },
+                { lastName: query?.searhQuery },
+              ],
+              type,
+            },
+            limit: query?.limit ?? 10,
+          }
+        : {
+            where: {
+              assignedToDepartmentID: departmentID,
 
-      const queries = query?.searhQuery
+              type,
+            },
+            limit: query?.limit ?? 10,
+          };
+      const newQuery = query?.searhQuery
         ? {
             where: {
               assignedToDepartmentID: departmentID,
@@ -279,6 +336,7 @@ class BusinessPermitService {
             },
             limit: query?.limit ?? 10,
           };
+      const queries = type === "new" ? newQuery : renewalQuery;
       const departmentData = await this.#departments.findAll({
         where: {
           id: departmentID,
@@ -573,17 +631,75 @@ class BusinessPermitService {
         plain: true,
       });
       const records = await this.#model.findOne({ where: { id } });
-      console.log(
-        "🚀 ~ file: controller.js:565 ~ BusinessPermitService ~ reviewPermit ~ records:",
-        records
-      );
 
       await this.#notifService.sendSMSNotification({
         ...records.dataValues,
         mobile,
       });
-
       return records;
+    } catch (error) {
+      return error;
+    }
+  }
+  async releasePermit(id) {
+    try {
+      const { dataValues } = await this.#model.findOne({ where: { id } });
+      const { businessName } = await this.#basicInfoModel.findOne({
+        where: { businessPermitID: id },
+        raw: true,
+      });
+      const { businessAddress } = await this.#otherInfoModel.findOne({
+        where: { businessPermitID: id },
+        raw: true,
+      });
+
+      const userData = await this.#userData.getUserData(dataValues?.userID);
+      const qrCodeData = await this.#qrCodeService.generate({
+        id: userData.id,
+        firstName: userData?.firstName,
+        middleName: userData?.middleName,
+        lastName: userData?.lastName,
+        businessName,
+        businessAddress,
+      });
+      console.log(
+        "🚀 ~ file: controller.js:665 ~ BusinessPermitService ~ releasePermit ~ qrCodeData:",
+        qrCodeData
+      );
+
+      const pdfAttchment = await this.#pdfAttach.createPDF({
+        ...userData,
+        approvedDate: new Date().toLocaleDateString("en-GB"),
+        businessName,
+        businessAddress,
+      });
+
+      await this.#model.update(
+        {
+          isRelease: true,
+          certificate: pdfAttchment,
+          qrCode: qrCodeData,
+        },
+        {
+          where: { id },
+          plain: true,
+        }
+      );
+      const res = await this.#model.findOne({ where: { id }, raw: true });
+
+      if (res.status === 1 || res.status === 3) {
+        await this.#notifService.sendEmailNotification(
+          {
+            ...dataValues,
+            email: userData?.email,
+            businessName,
+            certificate: pdfAttchment,
+            qrCode: qrCodeData,
+          },
+          NOTIF_TYPE.RELEASE_PERMIT
+        );
+      }
+      return dataValues;
     } catch (error) {
       return error;
     }

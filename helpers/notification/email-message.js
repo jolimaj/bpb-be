@@ -24,6 +24,11 @@ class EmailHelper {
         To get started, please activate your account by clicking on the link below:
         ${process.env.MAIN_URL}/signin/${id}/${notifParamsId}/activate`;
         break;
+      case NOTIF_TYPE.RELEASE_PERMIT:
+        text = `We wanted to inform you that your business permit application was approved and already release.
+        
+        Kindly see the attach business permit, QR code and Queue No. below:`;
+        break;
       default:
         text =
           "Congratulations! You`ve successfully added your password. Your account is now secure and ready for you to access all the features and benefits.";
@@ -47,6 +52,9 @@ class EmailHelper {
         break;
       case NOTIF_TYPE.PASSWORD_RESET_SUCCESS:
         sub = "Password Reset Success!";
+        break;
+      case NOTIF_TYPE.RELEASE_PERMIT:
+        sub = "Business Permit Application Release!";
         break;
     }
 

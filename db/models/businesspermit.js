@@ -36,6 +36,8 @@ module.exports = (sequelize, DataTypes) => {
       approvedDate: DataTypes.DATE,
       queueNo: DataTypes.STRING,
       qrCode: DataTypes.STRING,
+      certificate: DataTypes.STRING,
+      isRelease: DataTypes.BOOLEAN,
     },
     {
       sequelize,

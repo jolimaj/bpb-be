@@ -1,5 +1,6 @@
 const { EmailHelper } = require("../../helpers/notification/email-message");
 const { SMSHelper } = require("../../helpers/notification/sms-message");
+const { NOTIF_TYPE } = require("../constant/notification-constant");
 
 class NotificationMapper {
   #emailHelper;
@@ -11,7 +12,7 @@ class NotificationMapper {
   }
 
   emailMapper(payload, type) {
-    return {
+    const req = {
       from: "Email from @businesspermitngbayan.vercel.app <donotreplybpbbusinesspermitngbayan@gmail.com>'",
       to: payload?.email,
       subject: this.#emailHelper.subject(type),
@@ -21,6 +22,26 @@ class NotificationMapper {
         type
       ),
     };
+
+    if (type === NOTIF_TYPE.RELEASE_PERMIT) {
+      req.attachments = [
+        {
+          filename: "businessPermit.pdf",
+          path: payload.certificate,
+        },
+        {
+          filename: "qrCode.svg",
+          path: payload.qrCode,
+          cid: "qrCode",
+        },
+        // {
+        //   filename: "queueNo.png",
+        //   path: payload.queueNo,
+        //   cid: "queueNo",
+        // },
+      ];
+    }
+    return req;
   }
 
   smsMapper(payload, department) {

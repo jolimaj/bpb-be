@@ -306,6 +306,24 @@ router.get("/services/businessPermit", async (req, res) => {
   }
 });
 
+router.get("/services/businessPermit/renew", async (req, res) => {
+  try {
+    const { session } = req;
+    if (session?.email && session?.password) {
+      const data = await businessPermit.getBusinessPermitByUserForRenewal(
+        session?.email
+      );
+      return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
+    }
+    return res.error(
+      400,
+      responseCodes.LOGIN_FIRST,
+      responseMessage.LOGIN_FIRST
+    );
+  } catch (e) {
+    return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
+  }
+});
 router.get("/services/businessPermit/requirements/:id", async (req, res) => {
   try {
     const { session, params } = req;
@@ -418,33 +436,29 @@ router.put(
   async (req, res) => {
     try {
       const { params, body, files, session } = req;
-      console.log(
-        "🚀 ~ file: business-permit-route.js:421 ~ params, body, files, session:",
-        params,
-        body,
-        files,
-        session
-      );
-
       if (session?.email && session?.password) {
         let data;
-        if (body?.result === "approve") {
-          let request;
-          if (files) {
-            request = await uploaderService.uploadFiles(
-              files[0],
-              files[0]?.fieldname
-            );
-            data = await businessPermit.reviewPermit(
-              params.id,
-              request,
-              files[0]?.fieldname
-            );
-          } else {
-            data = await businessPermit.reviewPermit(params.id);
-          }
+        if (body?.release) {
+          data = await businessPermit.releasePermit(params.id);
         } else {
-          data = await businessPermit.disapproveRequest(params.id, body);
+          if (body?.result === "approve") {
+            let request;
+            if (files) {
+              request = await uploaderService.uploadFiles(
+                files[0],
+                files[0]?.fieldname
+              );
+              data = await businessPermit.reviewPermit(
+                params.id,
+                request,
+                files[0]?.fieldname
+              );
+            } else {
+              data = await businessPermit.reviewPermit(params.id);
+            }
+          } else {
+            data = await businessPermit.disapproveRequest(params.id, body);
+          }
         }
         return res.success(200, responseCodes.UPDATE_RECORD_SUCCESS, data);
       }

@@ -22,6 +22,7 @@ class UploaderService {
       const res = await cloudinary.uploader.upload(dataURI, {
         folder,
       });
+
       return res.secure_url;
     } catch (error) {
       return error;

@@ -271,7 +271,7 @@ class UsersController {
       const notifData = await this.#notifModules.addQueryParams(
         result.dataValues.id
       );
-      await await this.#notifService.sendEmailNotification(
+      await this.#notifService.sendEmailNotification(
         {
           ...result.dataValues,
           notifParamsId: notifData.dataValues.paramsNumber,

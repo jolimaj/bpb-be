@@ -24,16 +24,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   session({
-    // proxy: true,
-    secret: "BPB",
-    // resave: true,
-    // saveUninitialized: true,
+    secret: "bpb",
     cookie: {
-      maxAge: 10 * 60_000, // 10 mins
-      httpOnly: false,
-      signed: true,
-      secure: true,
-      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      httpOnly: true,
+    },
+    resave: true,
+    saveUninitialized: false,
+    cookie: {
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
     },
   })
 );

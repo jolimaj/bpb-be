@@ -24,10 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   session({
-    proxy: true,
+    // proxy: true,
     secret: "BPB",
-    resave: true,
-    saveUninitialized: true,
+    // resave: true,
+    // saveUninitialized: true,
     cookie: {
       maxAge: 10 * 60_000, // 10 mins
       httpOnly: false,

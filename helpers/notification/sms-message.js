@@ -5,13 +5,13 @@ const {
 } = require("../../common/constant/business-permit-constant");
 
 class SMSHelper {
-  message(department, type) {
+  message(department, type, status) {
     if (type === APPLICATION_TYPES.NEW) {
-      return this.#news(department);
+      return this.#news(department, status);
     }
-    return this.#renew(department);
+    return this.#renew(department, status);
   }
-  #renew(department) {
+  #renew(department, status) {
     let message;
     switch (department) {
       case DEPARTMENT_ID.BPLO:
@@ -29,13 +29,13 @@ class SMSHelper {
       default:
         break;
     }
-    return `${this.#forwardedRENEW(department, message)}
+    return `${this.#forwardedRENEW(message, status)}
     
     Best Regards,
     BPB-SARIAYA QUEZON`;
   }
 
-  #news(department) {
+  #news(department, status) {
     let message;
     switch (department) {
       case DEPARTMENT_ID.MPDC:
@@ -62,7 +62,7 @@ class SMSHelper {
       default:
         break;
     }
-    return `${this.#forwardedNEW(department, message)}
+    return `${this.#forwardedNEW(department, message, status)}
     
     Best Regards,
     BPB-SARIAYA QUEZON`;
@@ -87,16 +87,16 @@ class SMSHelper {
     Rest assured that we will notify you of the outcome as soon as the review process is complete.`;
   }
 
-  #forwardedRENEW(name, status) {
+  #forwardedRENEW(message, status) {
     if (status === 3) {
-      return `We wanted to inform you that  your application  are currently approved ${name}.
+      return `We wanted to inform you that  your application  are currently approved ${message}.
       You can get your Business Permit copy together with QR Code and Queueing  Number in your email address.`;
     }
 
     if (status === -1) {
-      return `We regret to inform you that your renewal was rejected by ${name}.`;
+      return `We regret to inform you that your renewal was rejected by ${message}.`;
     }
-    return `We hope this message finds you well. We wanted to inform you that your renewal are currently in the process of reviewing under ${name}.
+    return `We hope this message finds you well. We wanted to inform you that your renewal are currently in the process of reviewing under ${message}.
     Rest assured that we will notify you of the outcome as soon as the review process is complete.`;
   }
 }

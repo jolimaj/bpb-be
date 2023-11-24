@@ -14,10 +14,9 @@ app.use(bodyParser.json());
 app.use(
   cors({
     credentials: true,
-    // origin: true,
+    origin: true,
   })
 );
-app.options("*", cors()); // enable pre-flight?
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

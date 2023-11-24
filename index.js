@@ -27,7 +27,7 @@ app.use(
     secret: "bpb",
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7,
-      httpOnly: true,
+      httpOnly: false,
     },
     resave: true,
     saveUninitialized: false,

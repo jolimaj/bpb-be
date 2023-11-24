@@ -24,12 +24,10 @@ app.use(cookieParser());
 app.use(
   session({
     secret: "bpb",
-    cookie: {
-      httpOnly: false,
-    },
     resave: false,
     saveUninitialized: false,
     cookie: {
+      httpOnly: true,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
     },

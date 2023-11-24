@@ -26,10 +26,9 @@ app.use(
   session({
     secret: "bpb",
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: false,
     },
-    resave: true,
+    resave: false,
     saveUninitialized: false,
     cookie: {
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",

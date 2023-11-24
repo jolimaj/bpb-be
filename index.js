@@ -17,6 +17,7 @@ app.use(
     origin: true,
   })
 );
+app.options("*", cors()); // enable pre-flight?
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -28,10 +29,11 @@ app.use(
     resave: true,
     saveUninitialized: true,
     cookie: {
-      // httpOnly: true,
+      maxAge: 10 * 60_000, // 10 mins
+      httpOnly: false,
+      signed: true,
       secure: true,
       sameSite: "none",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
     },
   })
 );

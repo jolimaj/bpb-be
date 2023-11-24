@@ -15,6 +15,10 @@ app.use(
   cors({
     credentials: true,
     origin: true,
+    exposedHeaders: [
+      "X-Set-Cookie",
+      //...
+    ],
   })
 );
 

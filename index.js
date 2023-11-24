@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(
   cors({
     credentials: true,
-    origin: true,
+    origin: process.env.MAIN_URL,
   })
 );
 app.options("*", cors()); // enable pre-flight?

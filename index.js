@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 
 app.use(
   cors({
-    credentials: "includes",
+    credentials: true,
     origin: true,
   })
 );

@@ -22,12 +22,12 @@ class DepartmentsModule {
         Object.keys(query).length > 0
           ? {
               where: {
-                code: query?.code,
+                code: query?.code ?? "",
               },
-              limit: 10,
+              limit: query.limit ?? 10,
             }
           : {
-              limit: 10,
+              limit: query.limit ?? 10,
             };
       return this.#model.findAll({
         ...queries,

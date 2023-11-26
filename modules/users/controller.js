@@ -76,7 +76,7 @@ class UsersController {
                   [Op.ne]: email,
                 },
               },
-              limit: 10,
+              limit: query.limit ?? 10,
             }
           : {
               where: {
@@ -85,7 +85,7 @@ class UsersController {
                   [Op.ne]: email,
                 },
               },
-              limit: 10,
+              limit: query.limit ?? 10,
             };
       return await this.#model.findAll({
         ...queries,

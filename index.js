@@ -13,12 +13,8 @@ app.use(bodyParser.json());
 
 app.use(
   cors({
-    credentials: true,
+    credentials: "includes",
     origin: true,
-    exposedHeaders: [
-      "X-Set-Cookie",
-      //...
-    ],
   })
 );
 
@@ -31,16 +27,14 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      httpOnly: true,
+      httpOnly: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
     },
   })
 );
-// if (process.env.NODE_ENV === "production") {
 app.set("trust proxy", 1);
-//   sess.cookie.secure = true;
-// }
+
 app.use((req, res, next) => {
   res.success = (status, responseCodes, data) => {
     const output = okResp(status, responseCodes, data);

@@ -101,9 +101,7 @@ class UsersController {
         Object.keys(query).length > 0
           ? {
               where: {
-                firstName: {
-                  [Op.like]: "%{abc@gmail.com}%",
-                },
+                firstName: query?.firstName,
                 email: {
                   [Op.ne]: email,
                 },

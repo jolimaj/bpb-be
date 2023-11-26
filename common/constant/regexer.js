@@ -1,7 +1,7 @@
 const REGULAR_EXPRESSION = {
   MOBILE: /^(09|\+639)\d{9}$/,
   PASSWORD: /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-  NAME: /^[A-Za-z]+$/,
+  NAME: /^[a-z\d\-_\s]+$/i,
 };
 // At least 8 characters long
 // Contains at least one uppercase letter

@@ -18,17 +18,16 @@ class DepartmentsModule {
   }
   getDepartments(query) {
     try {
-      const queries =
-        Object.keys(query).length > 0
-          ? {
-              where: {
-                code: query?.code ?? "",
-              },
-              limit: query.limit ?? 10,
-            }
-          : {
-              limit: query.limit ?? 10,
-            };
+      const queries = query?.code
+        ? {
+            where: {
+              code: query?.code ?? "",
+            },
+            limit: query.limit ?? 10,
+          }
+        : {
+            limit: query.limit ?? 10,
+          };
       return this.#model.findAll({
         ...queries,
         include: [

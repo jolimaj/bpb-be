@@ -66,27 +66,26 @@ class UsersController {
 
   async getAllStaff(query, email) {
     try {
-      const queries =
-        Object.keys(query).length > 0
-          ? {
-              where: {
-                firstName: query?.firstName,
-                roleID: 3,
-                email: {
-                  [Op.ne]: email,
-                },
+      const queries = query?.firstName
+        ? {
+            where: {
+              firstName: query?.firstName,
+              roleID: 3,
+              email: {
+                [Op.ne]: email,
               },
-              limit: query.limit ?? 10,
-            }
-          : {
-              where: {
-                roleID: 3,
-                email: {
-                  [Op.ne]: email,
-                },
+            },
+            limit: query.limit,
+          }
+        : {
+            where: {
+              roleID: 3,
+              email: {
+                [Op.ne]: email,
               },
-              limit: query.limit ?? 10,
-            };
+            },
+            limit: query.limit,
+          };
       return await this.#model.findAll({
         ...queries,
         include: [{ model: Departments }],
@@ -97,25 +96,24 @@ class UsersController {
   }
   async getAll(query, email) {
     try {
-      const queries =
-        Object.keys(query).length > 0
-          ? {
-              where: {
-                firstName: query?.firstName,
-                email: {
-                  [Op.ne]: email,
-                },
+      const queries = query?.firstName
+        ? {
+            where: {
+              firstName: query?.firstName,
+              email: {
+                [Op.ne]: email,
               },
-              limit: query.limit ?? 10,
-            }
-          : {
-              where: {
-                email: {
-                  [Op.ne]: email,
-                },
+            },
+            limit: query.limit ?? 10,
+          }
+        : {
+            where: {
+              email: {
+                [Op.ne]: email,
               },
-              limit: query.limit ?? 10,
-            };
+            },
+            limit: query.limit ?? 10,
+          };
       return await this.#model.findAll(queries);
     } catch (error) {
       return error;

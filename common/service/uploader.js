@@ -17,13 +17,36 @@ class UploaderService {
       if (!file) {
         return null;
       }
-      const b64 = Buffer.from(file.buffer).toString("base64");
-      let dataURI = "data:" + file.mimetype + ";base64," + b64;
-      const res = await cloudinary.uploader.upload(dataURI, {
-        folder,
-      });
+      let b64, dataURI, group, res;
+      if (file.length > 0) {
+        res = await Promise.all(
+          file.map(async (item) => {
+            console.log(
+              "🚀 ~ file: uploader.js:24 ~ UploaderService ~ file.map ~ item:",
+              item
+            );
+            b64 = Buffer.from(item.buffer).toString("base64");
+            dataURI = "data:" + item.mimetype + ";base64," + b64;
+            group = item.fieldname;
+            const { folder, secure_url } = await cloudinary.uploader.upload(
+              dataURI,
+              {
+                folder: item.fieldname,
+              }
+            );
+            return { folder, secure_url };
+          })
+        );
+      } else {
+        b64 = Buffer.from(file.buffer).toString("base64");
+        dataURI = "data:" + file.mimetype + ";base64," + b64;
+        const data = await cloudinary.uploader.upload(dataURI, {
+          folder,
+        });
+        res = data.secure_url;
+      }
 
-      return res.secure_url;
+      return res;
     } catch (error) {
       return error;
     }

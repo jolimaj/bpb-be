@@ -21,6 +21,9 @@ const {
   BusinessPermitMapper,
 } = require("../../common/mappers/business-permit-mapper");
 const {
+  RequirementsMapper,
+} = require("../../common/mappers/requirement-mapper");
+const {
   APPLICATION_TYPES,
   DEPARTMENT_ID,
 } = require("../../common/constant/business-permit-constant");
@@ -29,6 +32,7 @@ const { NOTIF_TYPE } = require("../../common/constant/notification-constant");
 class BusinessPermitService {
   #model;
   #mapper;
+  #reqMapper;
   #basicInfoModel;
   #otherInfoModel;
   #businessActivityModel;
@@ -42,6 +46,7 @@ class BusinessPermitService {
 
   constructor() {
     this.#mapper = new BusinessPermitMapper();
+    this.#reqMapper = new RequirementsMapper();
     this.#model = BusinessPermit;
     this.#basicInfoModel = BasicInfo;
     this.#otherInfoModel = OtherInfo;
@@ -86,8 +91,10 @@ class BusinessPermitService {
       const bfpResult = await this.#bfpForm.create(bfp, {
         raw: true,
       });
+      const requirementsMapped = this.#reqMapper.submit(payload);
+
       const requirementResult = await this.#requirement.create(
-        { businessPermitID: payload.id },
+        { ...requirementsMapped, businessPermitID: payload.id },
         {
           raw: true,
         }

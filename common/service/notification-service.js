@@ -32,7 +32,7 @@ class NotificationService {
     return await this.#transporter.sendMail(requestBody);
   }
 
-  async sendfgotification(payload) {
+  async sendSMSNotification(payload) {
     try {
       const requestBody = this.#notificationMapper.smsMapper(
         {

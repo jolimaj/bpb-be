@@ -20,6 +20,8 @@ module.exports = {
       },
       businessTelephone: {
         type: Sequelize.STRING,
+        defaultValue: null,
+        allowNull: true,
       },
       businessMobile: {
         type: Sequelize.DOUBLE,
@@ -34,7 +36,9 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       ownersTelephone: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
+        defaultValue: null,
+        allowNull: true,
       },
       ownersMobile: {
         type: Sequelize.DOUBLE,

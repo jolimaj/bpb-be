@@ -16,6 +16,7 @@ class RequirementsMapper {
       sanityPermit: payload.sanityPermit,
       menroCert: payload.menroCert,
       fireSafetyCert: payload.fireSafetyCert,
+      mtoPayment: payload.mtoPayment,
     };
   }
 }

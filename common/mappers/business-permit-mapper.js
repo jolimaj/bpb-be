@@ -21,6 +21,10 @@ class BusinessPermitMapper {
   }
 
   otherInfo(payload) {
+    console.log(
+      "🚀 ~ file: business-permit-mapper.js:24 ~ BusinessPermitMapper ~ otherInfo ~ payload:",
+      payload
+    );
     return {
       businessPermitID: payload?.id,
       businessAddress: payload?.businessAddress,
@@ -54,36 +58,12 @@ class BusinessPermitMapper {
     const one = {
       businessPermitID: payload?.id,
       lineOfBusiness: payload?.line1,
-      noOfUnits: payload?.unit1,
+      noOfUnits: payload?.units1,
       capitalization: payload?.capital1,
       essentialGross: payload?.grossEssential1,
       nonEssentialGross: payload?.grossNonEssential1,
     };
-    const two = {
-      businessPermitID: payload?.id,
-      lineOfBusiness: payload?.line2,
-      noOfUnits: payload?.unit2,
-      capitalization: payload?.capital2,
-      essentialGross: payload?.grossEssential2,
-      nonEssentialGross: payload?.grossNonEssential2,
-    };
-    const three = {
-      businessPermitID: payload?.businessPermitID,
-      lineOfBusiness: payload?.line3,
-      noOfUnits: payload?.unit3,
-      capitalization: payload?.capital3,
-      essentialGross: payload?.grossEssential3,
-      nonEssentialGross: payload?.grossNonEssential3,
-    };
-    const four = {
-      businessPermitID: payload?.businessPermitID,
-      lineOfBusiness: payload?.line4,
-      noOfUnits: payload?.unit4,
-      capitalization: payload?.capital4,
-      essentialGross: payload?.grossEssential4,
-      nonEssentialGross: payload?.grossNonEssential4,
-    };
-    return [one, two, three, four];
+    return one;
   }
   bfpForm(payload) {
     return {

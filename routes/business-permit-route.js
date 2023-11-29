@@ -231,20 +231,28 @@ router.post(
 
 router.post(
   "/services/businessPermit",
-  upload.single("applicantSignature"),
+  upload.any("file"),
   async (req, res) => {
     try {
-      const { body, file, session } = req;
-
+      const { body, files, session } = req;
+      console.log("🚀 ~ file: business-permit-route.js:238 ~ body:", body);
       if (session?.email && session?.password) {
-        body.applicantSignature = await uploaderService.uploadFiles(
-          file,
-          "applicantSignature"
+        const filesList = await uploaderService.uploadFiles(files);
+        if (filesList.length > 0) {
+          filesList.forEach((element) => {
+            body[element.folder] = element.secure_url;
+          });
+        }
+        console.log(
+          "🚀 ~ file: business-permit-route.js:243 ~ filesList.forEach ~ body:",
+          body
         );
+
         const data = await businessPermit.applyBusinessPermit(
           body,
           session?.email
         );
+        console.log("🚀 ~ file: business-permit-route.js:254 ~ data:", data);
         return res.success(200, responseCodes.CREATE_RECORD_SUCCESS, data);
       }
       return res.error(
@@ -253,6 +261,7 @@ router.post(
         responseMessage.LOGIN_FIRST
       );
     } catch (e) {
+      console.log("🚀 ~ file: business-permit-route.js:257 ~ e:", e);
       return res.error(400, responseCodes.CREATE_RECORD_FAILED, e);
     }
   }
@@ -260,7 +269,7 @@ router.post(
 
 router.put(
   "/services/businessPermit/:id",
-  upload.single("applicantSignature"),
+  upload.any("file"),
   async (req, res) => {
     try {
       const { body, file, session, params } = req;

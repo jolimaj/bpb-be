@@ -74,12 +74,17 @@ module.exports.validateBasicInfo = {
         "string.empty": `DTI/SEC/CDA Registration Date cannot be an empty field`,
         "any.required": `DTI/SEC/CDA Registration Date is required`,
       }),
-    businessTypeID: Joi.number().required().label("Business Type").messages({
-      "string.base": `Business Type is required`,
-      "string.empty": `Business Type cannot be an empty field`,
-      "any.required": `Business Type is required`,
-    }),
-    tinNo: Joi.string().required().label("Tin No.").messages({
+    businessTypeID: Joi.number()
+      .min(7)
+      .max(7)
+      .required()
+      .label("Business Type")
+      .messages({
+        "string.base": `Business Type is required`,
+        "string.empty": `Business Type cannot be an empty field`,
+        "any.required": `Business Type is required`,
+      }),
+    tinNo: Joi.string().required().min(12).max(12).label("Tin No.").messages({
       "string.base": `Tin No. is required`,
       "string.empty": `Tin No. cannot be an empty field`,
       "any.required": `Tin No. is required`,

@@ -27,6 +27,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
+      domain: ".cyclic.app",
       httpOnly: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",

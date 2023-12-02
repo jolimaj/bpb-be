@@ -17,13 +17,9 @@ module.exports.validateRegister = {
       .pattern(REGULAR_EXPRESSION.NAME)
       .label("Last Name")
       .required(),
-    mobile: Joi.string()
-      .pattern(REGULAR_EXPRESSION.MOBILE)
-      .label("Mobile Number")
-      .required()
-      .messages({
-        "*": "{mobile} Incorrect mobile number format",
-      }),
+    mobile: Joi.string().label("Mobile Number").required().messages({
+      "*": "{mobile} Incorrect mobile number format",
+    }),
     email: Joi.string().email().trim(true).label("Email Address").required(),
     isActive: Joi.boolean().optional(),
     password: passwordComplexity({

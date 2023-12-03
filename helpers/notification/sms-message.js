@@ -68,18 +68,22 @@ class SMSHelper {
     BPB-SARIAYA QUEZON`;
   }
 
-  #forwardedNEW(department, name, status) {
+  #forwardedNEW(department, name, status, payload) {
+    if (payload?.reason) {
+      const mes =
+        payload?.reason === "1"
+          ? `requirements that you submited are invalid`
+          : `${payload?.missing} are missing`;
+      return `We regret to inform you that your application was rejected by ${message}. The ${mes}.`;
+    }
+
     if (status === 1) {
       return `We wanted to inform you that  your application  are currently approved ${name}.
       You can get your Business Permit copy together with QR Code and Queueing  Number in your email address.`;
     }
 
     if (status === -1) {
-      const mes =
-        payload?.reason === "1"
-          ? "that you submited are invalid"
-          : "are missing";
-      return `We regret to inform you that your renewal was rejected by ${message}. The ${payload?.missing} ${mes}.`;
+      return `We regret to inform you that your application was rejected.`;
     }
 
     if (department === DEPARTMENT_ID.MPDC) {
@@ -92,18 +96,22 @@ class SMSHelper {
   }
 
   #forwardedRENEW(message, status, payload) {
+    if (payload?.reason) {
+      const mes =
+        payload?.reason === "1"
+          ? `requirements that you submited are invalid`
+          : `${payload?.missing} are missing`;
+      return `We regret to inform you that your renewal was rejected by ${message}. The ${mes}.`;
+    }
     if (status === 3) {
       return `We wanted to inform you that  your application  are currently approved ${message}.
       You can get your Business Permit copy together with QR Code and Queueing  Number in your email address.`;
     }
 
     if (status === -1) {
-      const mes =
-        payload?.reason === "1"
-          ? "that you submited are invalid"
-          : "are missing";
-      return `We regret to inform you that your renewal was rejected by ${message}. The ${payload?.missing} ${mes}.`;
+      return `We regret to inform you that your renewal was rejected.`;
     }
+
     return `We hope this message finds you well. We wanted to inform you that your renewal are currently in the process of reviewing under ${message}.
     Rest assured that we will notify you of the outcome as soon as the review process is complete.`;
   }

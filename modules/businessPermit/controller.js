@@ -746,10 +746,6 @@ class BusinessPermitService {
       }
       return dataValues;
     } catch (error) {
-      console.log(
-        "🚀 ~ file: controller.js:741 ~ BusinessPermitService ~ releasePermit ~ error:",
-        error
-      );
       return error;
     }
   }
@@ -802,9 +798,10 @@ class BusinessPermitService {
     let list;
     const requirements = await this.getRequirementsByID(id);
     const requirementsPerType = await this.handleRequirementsByType(
-      requirements,
+      requirements.dataValues,
       type
     );
+
     switch (assignedToDepartmentID) {
       case 1:
         list = [
@@ -908,8 +905,9 @@ class BusinessPermitService {
         break;
     }
     const missing = list.map((item) => {
-      return item.value ? item.name : null;
+      return item.value === null ? item.name : null;
     });
+
     return { missing: missing.filter((item) => item).toString(), ...payload };
   }
 
@@ -928,9 +926,11 @@ class BusinessPermitService {
         plain: true,
       });
       const { mobile } = await this.#userData.getUserData(dataValues?.userID);
-      const smsPayload = this.handleDepartmentRequirements({
+
+      const smsPayload = await this.handleDepartmentRequirements({
         ...dataValues,
       });
+
       await this.#notifService.sendSMSNotification({
         ...smsPayload,
         reason,

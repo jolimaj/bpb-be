@@ -445,10 +445,7 @@ router.put(
   async (req, res) => {
     try {
       const { params, body, files, session } = req;
-      console.log(
-        "🚀 ~ file: business-permit-route.js:439 ~ session:",
-        session
-      );
+
       if (session?.email && session?.password) {
         let data;
         if (body?.release) {

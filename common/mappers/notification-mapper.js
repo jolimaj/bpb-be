@@ -50,7 +50,12 @@ class NotificationMapper {
     return {
       from: payload?.from,
       to: payload?.mobile,
-      body: this.#smsHelper.message(department, payload?.type, payload?.status),
+      body: this.#smsHelper.message(
+        department,
+        payload?.type,
+        payload?.status,
+        payload
+      ),
     };
   }
 }

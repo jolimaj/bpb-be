@@ -672,6 +672,14 @@ class BusinessPermitService {
         where: { businessPermitID: id },
         raw: true,
       });
+      const otherInfoData = await this.#otherInfoModel.findOne({
+        where: { businessPermitID: id },
+        raw: true,
+      });
+      console.log(
+        "🚀 ~ file: controller.js:679 ~ BusinessPermitService ~ releasePermit ~ otherInfoData:",
+        otherInfoData
+      );
       const { businessAddress } = await this.#otherInfoModel.findOne({
         where: { businessPermitID: id },
         raw: true,
@@ -738,13 +746,176 @@ class BusinessPermitService {
       }
       return dataValues;
     } catch (error) {
+      console.log(
+        "🚀 ~ file: controller.js:741 ~ BusinessPermitService ~ releasePermit ~ error:",
+        error
+      );
       return error;
     }
+  }
+  handleRequirementsByType(payload, type) {
+    let list;
+    switch (type) {
+      case 2:
+        list = {
+          sanityPermit: payload?.sanityPermit,
+          mtoPayment: payload?.mtoPayment,
+          cedula: payload?.cedula,
+          mtoAssestmentRecord: payload?.mtoAssestmentRecord,
+          fireSafetyCert: payload?.fireSafetyCert,
+          brgyBusinessClearance: payload?.brgyBusinessClearance,
+          dtiReg: payload?.dtiReg,
+          marketClearance: payload?.marketClearance,
+          certOfCompliance: payload?.certOfCompliance,
+          homeOwnersClearance: payload?.homeOwnersClearance,
+          leaseContract: payload?.leaseContract,
+          nationalAgencyAccredetation: payload?.nationalAgencyAccredetation,
+        };
+        break;
+      default:
+        list = {
+          sanityPermit: payload?.sanityPermit,
+          mtoPayment: payload?.mtoPayment,
+          cedula: payload?.cedula,
+          mtoAssestmentRecord: payload?.mtoAssestmentRecord,
+          fireSafetyCert: payload?.fireSafetyCert,
+          brgyBusinessClearance: payload?.brgyBusinessClearance,
+          dtiReg: payload?.dtiReg,
+          certOfCompliance: payload?.certOfCompliance,
+          leaseContract: payload?.leaseContract,
+          locationalClearance: payload?.locationalClearance,
+          picture: payload?.picture,
+          certOfCompliance: payload?.certOfCompliance,
+          buidingpermit: payload?.buidingpermit,
+          menroCert: payload?.menroCert,
+          fireSafetyCert: payload?.fireSafetyCert,
+          water: payload?.water,
+          mtoAssestmentRecord: payload?.mtoAssestmentRecord,
+          mtoPayment: payload?.mtoPayment,
+        };
+        break;
+    }
+    return list;
+  }
+  async handleDepartmentRequirements(payload) {
+    const { assignedToDepartmentID, id, type } = payload;
+    let list;
+    const requirements = await this.getRequirementsByID(id);
+    const requirementsPerType = await this.handleRequirementsByType(
+      requirements,
+      type
+    );
+    switch (assignedToDepartmentID) {
+      case 1:
+        list = [
+          {
+            name: "Barangay Business Clearance",
+            value: requirementsPerType?.brgyBusinessClearance,
+          },
+          {
+            name: "DTI/SEC/CDA Registration",
+            value: requirementsPerType?.dtiReg,
+          },
+          {
+            name: "Picture 2x2",
+            value: requirementsPerType?.picture,
+          },
+          {
+            name: "SSS Cert, of Compliance",
+            value: requirementsPerType?.certOfCompliance,
+          },
+          {
+            name: "Lease Contract",
+            value: requirementsPerType?.leaseContract,
+          },
+          {
+            name: "National Agency Accredation",
+            value: requirementsPerType?.nationalAgencyAccredetation,
+          },
+          {
+            name: "Market Clearance",
+            value: requirementsPerType?.marketClearance,
+          },
+          {
+            name: "Home Owner's Clearance",
+            value: requirementsPerType?.homeOwnersClearance,
+          },
+          {
+            name: "Home Owner's Clearance",
+            value: requirementsPerType?.homeOwnersClearance,
+          },
+        ];
+        break;
+      case 2:
+        list = [
+          {
+            name: "Locational Clearance",
+            value: requirementsPerType?.locationalClearance,
+          },
+        ];
+        break;
+      case 3:
+        list = [
+          {
+            name: "CEDULA",
+            value: requirementsPerType?.cedula,
+          },
+          {
+            name: "WATER",
+            value: requirementsPerType?.water,
+          },
+          {
+            name: "MTO Assestment Record",
+            value: requirementsPerType?.mtoAssestmentRecord,
+          },
+          {
+            name: "Payment",
+            value: requirementsPerType?.mtoPayment,
+          },
+        ];
+        break;
+      case 4:
+        list = [
+          {
+            name: "Municipal Environmental Certificate",
+            value: requirementsPerType?.menroCert,
+          },
+        ];
+        break;
+      case 5:
+        list = [
+          {
+            name: "Renovation / Building Permit",
+            value: requirementsPerType?.buidingpermit,
+          },
+        ];
+        break;
+      case 6:
+        list = [
+          {
+            name: "Sanitary Permit",
+            value: requirementsPerType?.sanityPermit,
+          },
+        ];
+        break;
+      case 7:
+        list = [
+          {
+            name: "Fire Safety Inspection Certificate",
+            value: requirementsPerType?.fireSafetyCert,
+          },
+        ];
+        break;
+    }
+    const missing = list.map((item) => {
+      return item.value ? item.name : null;
+    });
+    return { missing: missing.filter((item) => item).toString(), ...payload };
   }
 
   async disapproveRequest(id, payload) {
     try {
-      delete payload?.result;
+      const { reason } = payload;
       // remarks add to sms
       const { dataValues } = await this.getBusinessPermitByID(id);
       const requestData =
@@ -757,9 +928,12 @@ class BusinessPermitService {
         plain: true,
       });
       const { mobile } = await this.#userData.getUserData(dataValues?.userID);
-
-      await this.#notifService.sendSMSNotification({
+      const smsPayload = this.handleDepartmentRequirements({
         ...dataValues,
+      });
+      await this.#notifService.sendSMSNotification({
+        ...smsPayload,
+        reason,
         mobile,
       });
       return result;

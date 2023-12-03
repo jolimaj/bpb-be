@@ -139,7 +139,6 @@ router.get("/departments", async (req, res) => {
   if (session?.email && session?.password) {
     const data = await departmentsController.getDepartments(
       query,
-
       session?.email
     );
     return res.success(200, responseCodes.RETRIEVE_RECORD_LIST, data);

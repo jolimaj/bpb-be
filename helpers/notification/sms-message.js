@@ -5,13 +5,13 @@ const {
 } = require("../../common/constant/business-permit-constant");
 
 class SMSHelper {
-  message(department, type, status) {
+  message(department, type, status, payload) {
     if (type === APPLICATION_TYPES.NEW) {
-      return this.#news(department, status);
+      return this.#news(department, status, payload);
     }
-    return this.#renew(department, status);
+    return this.#renew(department, status, payload);
   }
-  #renew(department, status) {
+  #renew(department, status, payload) {
     let message;
     switch (department) {
       case DEPARTMENT_ID.BPLO:
@@ -29,13 +29,13 @@ class SMSHelper {
       default:
         break;
     }
-    return `${this.#forwardedRENEW(message, status)}
+    return `${this.#forwardedRENEW(message, status, payload)}
     
     Best Regards,
     BPB-SARIAYA QUEZON`;
   }
 
-  #news(department, status) {
+  #news(department, status, payload) {
     let message;
     switch (department) {
       case DEPARTMENT_ID.MPDC:
@@ -62,7 +62,7 @@ class SMSHelper {
       default:
         break;
     }
-    return `${this.#forwardedNEW(department, message, status)}
+    return `${this.#forwardedNEW(department, message, status, payload)}
     
     Best Regards,
     BPB-SARIAYA QUEZON`;
@@ -75,7 +75,11 @@ class SMSHelper {
     }
 
     if (status === -1) {
-      return `We regret to inform you that your application was rejected by ${name}.`;
+      const mes =
+        payload?.reason === "1"
+          ? "that you submited are invalid"
+          : "are missing";
+      return `We regret to inform you that your renewal was rejected by ${message}. The ${payload?.missing} ${mes}.`;
     }
 
     if (department === DEPARTMENT_ID.MPDC) {
@@ -87,14 +91,18 @@ class SMSHelper {
     Rest assured that we will notify you of the outcome as soon as the review process is complete.`;
   }
 
-  #forwardedRENEW(message, status) {
+  #forwardedRENEW(message, status, payload) {
     if (status === 3) {
       return `We wanted to inform you that  your application  are currently approved ${message}.
       You can get your Business Permit copy together with QR Code and Queueing  Number in your email address.`;
     }
 
     if (status === -1) {
-      return `We regret to inform you that your renewal was rejected by ${message}.`;
+      const mes =
+        payload?.reason === "1"
+          ? "that you submited are invalid"
+          : "are missing";
+      return `We regret to inform you that your renewal was rejected by ${message}. The ${payload?.missing} ${mes}.`;
     }
     return `We hope this message finds you well. We wanted to inform you that your renewal are currently in the process of reviewing under ${message}.
     Rest assured that we will notify you of the outcome as soon as the review process is complete.`;

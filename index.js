@@ -21,6 +21,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.set("trust proxy", 1);
 app.use(
   session({
     secret: "bpb",
@@ -34,7 +35,6 @@ app.use(
     },
   })
 );
-app.set("trust proxy", 1);
 
 app.use((req, res, next) => {
   res.success = (status, responseCodes, data) => {
